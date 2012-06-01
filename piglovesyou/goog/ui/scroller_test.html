@@ -1,0 +1,74 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Closure Unit Tests - goog.ui.Scroller</title>
+  <link rel="stylesheet" href="../css/scroller.css" />
+
+  <script src="../../../closure-library-read-only/closure/goog/base.js"></script>
+  <script type="text/javascript">
+    goog.require('goog.ui.Control');
+    goog.require('goog.ui.Slider');
+
+    goog.require('goog.testing.MockClock');
+    goog.require('goog.testing.events');
+    goog.require('goog.testing.jsunit');
+    goog.require('goog.testing.recordFunction');
+  </script>
+  <script src="../ui/scroller.js"></script>
+
+  <style type="text/css">
+    #my-scroller {
+      height: 200px;
+      width: 200px;
+      position: relative;
+      border: 1px #999 solid;
+      float: left;
+    }
+    #my-scroller .item {
+      padding: 10px;
+      border-bottom: 1px #999 solid;
+      background: #ddcccc;
+    }
+    #my-scroller .item:last-child {
+      border-bottom: none;
+    }
+  </style>
+
+</head>
+<body>
+
+  <div id="sandbox"></div>
+
+  <script>
+
+  var scroller;
+
+  function setUp () {
+    var sandBox = goog.dom.getElement('sandbox');
+    mockClock = new goog.testing.MockClock(true);
+    var scrollerElm = goog.dom.createDom('div', {
+      id: 'my-scroller',
+      className: 'goog-scroller'
+    }, goog.dom.createDom('div', 'goog-scroller-container'));
+    sandBox.appendChild(scrollerElm);
+    scroller = new goog.ui.Scroller();
+    scroller.decorate(scrollerElm);
+  }
+
+  function tearDown () {
+    goog.events.removeAll();
+    scroller.dispose();
+    mockClock.dispose();
+    goog.dom.getElement('sandbox').innerHTML = '';
+  }
+
+
+  function testDecorate () {
+    assertTrue(scroller.isInDocument());
+  }
+
+  </script>
+
+</body>
+</html>

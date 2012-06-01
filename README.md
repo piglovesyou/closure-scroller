@@ -14,7 +14,7 @@ And access ```./piglovesyou/goog/demos/scroller.html``` by a browser.
 
 
 ### Test
-(Not implemented yet)
+Access ```./piglovesyou/goog/ui/scroller_test.html``` by a browser.
 
 Tested revision of Closure Library is 1932.
 

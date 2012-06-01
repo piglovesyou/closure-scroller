@@ -1,0 +1,17 @@
+.goog-scroller-container {
+  height: 100%;
+  overflow: hidden;
+}
+.goog-scroller-bar-vertical {
+  width: 10px;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(0,0,0,.1);
+  outline: none;
+}
+.goog-scroller-bar-thumb {
+  position: relative;
+  background: #000;
+}

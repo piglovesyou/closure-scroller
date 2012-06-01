@@ -1,0 +1,61 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>goog.ui.Scroller</title>
+  <link rel="stylesheet" href="../css/scroller.css" />
+
+  <script src="../../../closure-library-read-only/closure/goog/base.js"></script>
+  <script type="text/javascript">
+    goog.require('goog.ui.Control');
+    goog.require('goog.ui.Slider');
+  </script>
+  <script src="../ui/scroller.js"></script>
+
+  <style type="text/css">
+    #my-scroller {
+      height: 200px;
+      width: 200px;
+      position: relative;
+      border: 1px #999 solid;
+      float: left;
+    }
+    #my-scroller .item {
+      padding: 10px;
+      border-bottom: 1px #999 solid;
+      background: #ddcccc;
+    }
+    #my-scroller .item:last-child {
+      border-bottom: none;
+    }
+  </style>
+
+</head>
+<body>
+
+  <div id="my-scroller" class="goog-scroller">
+    <div class="goog-scroller-container">
+      <div class="item">item..</div>
+      <div class="item">item..</div>
+      <div class="item">item..</div>
+      <div class="item">item..</div>
+      <div class="item">item..</div>
+      <div class="item">item..</div>
+      <div class="item">item..</div>
+      <div class="item">item..</div>
+      <div class="item">item..</div>
+      <div class="item">item..</div>
+      <div class="item">item..</div>
+      <div class="item">item..</div>
+      <div class="item">item..</div>
+    </div>
+  </div>
+
+  <script>
+    var scroller = new goog.ui.Scroller;
+    var elm = goog.dom.getElement('my-scroller');
+    scroller.decorate(elm);
+  </script>
+
+</body>
+</html>

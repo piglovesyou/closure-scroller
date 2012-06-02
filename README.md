@@ -6,6 +6,7 @@ Provides you a scrolling UI like a DOM element with overflow:scroll.
 ### Demo
 ```bash
 $ git clone git@github.com:piglovesyou/closure-scroller.git
+$ cd closure-scroller
 $ svn checkout http://closure-library.googlecode.com/svn/trunk/ closure-library-read-only
 ```
 

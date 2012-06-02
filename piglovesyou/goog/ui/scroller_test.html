@@ -9,6 +9,7 @@
   <script type="text/javascript">
     goog.require('goog.ui.Control');
     goog.require('goog.ui.Slider');
+    goog.require('goog.iter');
 
     goog.require('goog.testing.MockClock');
     goog.require('goog.testing.events');
@@ -26,9 +27,7 @@
       float: left;
     }
     #my-scroller .item {
-      padding: 10px;
-      border-bottom: 1px #999 solid;
-      background: #ddcccc;
+      height: 20px;
     }
     #my-scroller .item:last-child {
       border-bottom: none;
@@ -46,7 +45,7 @@
 
   function setUp () {
     var sandBox = goog.dom.getElement('sandbox');
-    mockClock = new goog.testing.MockClock(true);
+    clock = new goog.testing.MockClock(true);
     var scrollerElm = goog.dom.createDom('div', {
       id: 'my-scroller',
       className: 'goog-scroller'
@@ -59,13 +58,68 @@
   function tearDown () {
     goog.events.removeAll();
     scroller.dispose();
-    mockClock.dispose();
+    clock.dispose();
     goog.dom.getElement('sandbox').innerHTML = '';
   }
 
+  function appendItems () {
+    goog.iter.forEach(goog.iter.range(20), function (e) {
+      goog.dom.append(scroller.getContentElement(),
+          goog.dom.createDom('div', 'item', 'yeah...'));
+    });
+    scroller.update();
+  }
 
   function testDecorate () {
     assertTrue(scroller.isInDocument());
+    assertNotNullNorUndefined(scroller.getContentElement());
+
+    var slider = scroller.getSlider();
+    assertEquals(slider.getValueThumb(), slider.getExtentThumb());
+  }
+
+  function testDisabledWhenNotScrollable () {
+    assertFalse(scroller.isEnabled());
+    assertFalse(goog.style.isElementShown(scroller.getSlider().getElement()));
+
+    appendItems();
+    scroller.getContentElement().innerHTML = '';
+    scroller.update();
+    assertFalse(scroller.isEnabled());
+    assertFalse(goog.style.isElementShown(scroller.getSlider().getElement()));
+  }
+
+  function testEnabledWhenScrollable () {
+    appendItems();
+    assertTrue(scroller.isEnabled());
+    assertTrue(goog.style.isElementShown(scroller.getSlider().getElement()));
+  }
+
+  function testScroll () {
+    appendItems();
+
+    assertEquals(0, scroller.getSlider().getValueFromTop());
+    assertEquals(0, scroller.getContentElement().scrollTop);
+
+    scroller.getSlider().setValueFromTop(1000);
+
+    assertEquals(1000, scroller.getSlider().getValueFromTop());
+    assertTrue(scroller.getContentElement().scrollTop > 0);
+  }
+
+  function testScrollByKeydown () {
+    appendItems();
+    goog.testing.events.fireClickSequence(scroller.getElement());
+    assertEquals(document.activeElement, scroller.getSlider().getElement());
+
+    assertEquals(0, scroller.getContentElement().scrollTop);
+    goog.testing.events.fireKeySequence(scroller.getSlider().getElement(),
+        goog.events.KeyCodes.DOWN);
+    assertTrue(scroller.getContentElement().scrollTop > 0);
+
+    goog.testing.events.fireKeySequence(scroller.getSlider().getElement(),
+        goog.events.KeyCodes.UP);
+    assertEquals(0, scroller.getContentElement().scrollTop);
   }
 
   </script>

@@ -1,3 +1,6 @@
+.goog-scroller {
+  position: relative;
+}
 .goog-scroller-container {
   height: 100%;
   overflow: hidden;
@@ -15,3 +18,17 @@
   position: relative;
   background: #000;
 }
+
+.goog-scroller-bar-horizontal {
+  height: 10px;
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  background: rgba(0,0,0,.1);
+  outline: none;
+}
+.goog-scroller-bar-horizontal .goog-scroller-bar-thumb {
+  height: 100%;
+}
+

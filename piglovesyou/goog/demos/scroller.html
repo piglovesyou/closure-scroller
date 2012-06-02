@@ -18,7 +18,6 @@
       width: 200px;
       position: relative;
       border: 1px #999 solid;
-      float: left;
     }
     #my-scroller .item {
       padding: 10px;
@@ -51,10 +50,29 @@
     </div>
   </div>
 
+  <button id="decrementButton">Decrement items</button>
+
   <script>
     var scroller = new goog.ui.Scroller;
     var elm = goog.dom.getElement('my-scroller');
     scroller.decorate(elm);
+
+    var buttonElm = goog.dom.getElement('decrementButton');
+    buttonElm.removeAttribute('disabled');
+    goog.events.listen(buttonElm, 'click', decrement);
+
+    function decrement () {
+      var container = scroller.getContentElement()
+      var item = goog.dom.getLastElementChild(container);
+      if (item) {
+        goog.dom.removeNode(item);
+        scroller.update();
+        if (goog.dom.getChildren(container).length == 0) {
+          buttonElm.setAttribute('disabled', 'disabled');
+          goog.events.unlisten(buttonElm, 'click', decrement);
+        }
+      }
+    }
   </script>
 
 </body>

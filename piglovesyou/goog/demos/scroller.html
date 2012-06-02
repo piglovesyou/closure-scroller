@@ -46,7 +46,32 @@
       border-bottom: none;
     }
 
-    table {
+    #my-bscroller {
+      height: 200px;
+      width: 200px;
+      border: 1px #999 solid;
+    }
+    #my-bscroller .goog-scroller-container {
+      white-space: nowrap;
+    }
+    #my-bscroller .item {
+      display: inline-block;
+      width       : 50px;
+      height      : 50px;
+      line-height : 50px;
+      text-align: center;
+      
+      padding: 10px;
+      border-right: 1px #999 solid;
+      border-bottom: 1px #999 solid;
+      background: lightgreen;
+    }
+    #my-hscroller .item:last-child {
+      border-bottom: none;
+    }
+
+
+     table {
       border-collapse: collapse;
       background: 
     }
@@ -115,6 +140,34 @@
         <button id="hdecrementButton">Decrement items</button>
 
       </td>
+
+      <td>
+      
+        <div id="my-bscroller" class="goog-scroller">
+          <div class="goog-scroller-container">
+            <div class="item">item1</div><!--
+         --><div class="item">item2</div><!--
+         --><div class="item">item3</div><!--
+         --><div class="item">item4</div><br />
+            <div class="item">item5</div><!--
+         --><div class="item">item6</div><!--
+         --><div class="item">item7</div><!--
+         --><div class="item">item8</div><br />
+            <div class="item">item9</div><!--
+         --><div class="item">item10</div><!--
+         --><div class="item">item11</div><!--
+         --><div class="item">item12</div><br />
+            <div class="item">item13</div><!--
+         --><div class="item">item14</div><!--
+         --><div class="item">item15</div><!--
+         --><div class="item">item16</div><br />
+ 
+                    
+          </div>
+        </div>
+        <button id="bdecrementButton">Decrement items</button>
+
+      </td>
     </tr>
   </table>
 
@@ -123,7 +176,6 @@
     var vscroller = new goog.ui.Scroller;
     var elm = goog.dom.getElement('my-vscroller');
     vscroller.decorate(elm);
-
     var vbutton = goog.dom.getElement('vdecrementButton');
     vbutton.removeAttribute('disabled');
     goog.events.listen(vbutton, 'click', goog.bind(decrement, null, vscroller));
@@ -131,16 +183,25 @@
     var hscroller = new goog.ui.Scroller(goog.ui.Scroller.ORIENTATION.HORIZONTAL);
     var elm = goog.dom.getElement('my-hscroller');
     hscroller.decorate(elm);
-
     var hbutton = goog.dom.getElement('hdecrementButton');
     hbutton.removeAttribute('disabled');
     goog.events.listen(hbutton, 'click', goog.bind(decrement, null, hscroller));
+
+    var bscroller = new goog.ui.Scroller(goog.ui.Scroller.ORIENTATION.BOTH);
+    var elm = goog.dom.getElement('my-bscroller');
+    bscroller.decorate(elm);
+    var bbutton = goog.dom.getElement('bdecrementButton');
+    bbutton.removeAttribute('disabled');
+    goog.events.listen(bbutton, 'click', goog.bind(decrement, null, bscroller));
 
     function decrement (scroller, e) {
       var container = scroller.getContentElement()
       var item = goog.dom.getLastElementChild(container);
       if (item) {
         goog.dom.removeNode(item);
+        // br tab
+        var br = goog.dom.getLastElementChild(container);
+        if (br.nodeName === 'br') goog.dom.removeNode(br);
         scroller.update();
         if (goog.dom.getChildren(container).length == 0) {
           var buttonElm = e.target;

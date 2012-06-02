@@ -175,31 +175,46 @@ goog.ui.Scroller.prototype.getHeight = function () {
 
 goog.ui.Scroller.prototype.update_ = function () {
   var container         = this.containerElm_;
-  var venable;
-  var henable;
+
+  // Setup variables
   if (this.supportVertical()) {
     var height          = this.height_          = container.offsetHeight;
     var scrollHeight    = this.scrollHeight_    = this.getScrollHeight();
-    var scrollableRange = this.vscrollableRange_ = scrollHeight - height;
-    venable = scrollableRange > 0;
-    if (venable) {
-      this.adjustThumbHeight_();
-      this.adjustValueByScrollTop_();
-      this.adjustUnitIncrementV_();
-    }
+    this.vscrollableRange_ = scrollHeight - height;
   }
   if (this.supportHorizontal()) {
     var width          = this.width_          = container.offsetWidth;
     var scrollWidth    = this.scrollWidth_    = this.getScrollWidth();
-    var scrollableRange = this.hscrollableRange_ = scrollWidth - width;
-    henable = scrollableRange > 0;
-    if (henable) {
-      this.adjustThumbWidth_();
-      this.adjustValueByScrollLeft_();
-      this.adjustUnitIncrementH_();
-    }
+    this.hscrollableRange_ = scrollWidth - width;
   }
+
+  var venable = this.isVerticalEnabled();
+  var henable = this.isHorizontalEnabled();
+
+  // Update DOM sizes
+  if (venable) {
+    this.adjustThumbHeight_(henable);
+    this.adjustValueByScrollTop_();
+    this.adjustUnitIncrementV_();
+  }
+  if (henable) {
+    this.adjustThumbWidth_(venable);
+    this.adjustValueByScrollLeft_();
+    this.adjustUnitIncrementH_();
+  }
+
+  // Enable events and so forth
   this.setEnabled(venable || henable);
+};
+
+
+goog.ui.Scroller.prototype.isVerticalEnabled = function () {
+  return this.supportVertical() && this.vscrollableRange_ > 0;
+};
+
+
+goog.ui.Scroller.prototype.isHorizontalEnabled = function () {
+  return this.supportHorizontal() && this.hscrollableRange_ > 0;
 };
 
 
@@ -222,13 +237,17 @@ goog.ui.Scroller.prototype.getScrollWidth = function () {
 goog.ui.Scroller.prototype.setEnabled = function (enable) {
   goog.base(this, 'setEnabled', enable);
   this.setMouseWheelEnable_(enable);
+
+  var venable = this.isVerticalEnabled();
+  var henable = this.isHorizontalEnabled();
+
   if (this.supportVertical()) {
-    this.vslider_.setEnabled(enable);
-    this.vslider_.setVisible(enable);
+    this.vslider_.setEnabled(venable);
+    this.vslider_.setVisible(venable);
   }
   if (this.supportHorizontal()) {
-    this.hslider_.setEnabled(enable);
-    this.hslider_.setVisible(enable);
+    this.hslider_.setEnabled(henable);
+    this.hslider_.setVisible(henable);
   }
 };
 
@@ -265,17 +284,19 @@ goog.ui.Scroller.prototype.handleMouseWheel_ = function (e) {
 };
 
 
-goog.ui.Scroller.prototype.adjustThumbHeight_ = function () {
+goog.ui.Scroller.prototype.adjustThumbHeight_ = function (henable) {
   var height = this.height_;
   var rate = height / this.scrollHeight_;
+  goog.style.setHeight(this.vslider_.getElement(), henable ? height - 10 : '100%');
   var thumbHeight = Math.max(rate * height, this.minThumbLength_);
   goog.style.setHeight(this.vslider_.getValueThumb(), thumbHeight);
 };
 
 
-goog.ui.Scroller.prototype.adjustThumbWidth_ = function () {
+goog.ui.Scroller.prototype.adjustThumbWidth_ = function (venable) {
   var width = this.width_;
   var rate = width / this.scrollWidth_;
+  goog.style.setWidth(this.hslider_.getElement(), venable ? width - 10 : '100%');
   var thumbWidth = Math.max(rate * width, this.minThumbLength_);
   goog.style.setWidth(this.hslider_.getValueThumb(), thumbWidth);
 };

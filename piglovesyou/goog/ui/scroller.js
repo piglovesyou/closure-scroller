@@ -33,22 +33,13 @@ goog.ui.Scroller.EventType = {
 };
 
 
+/**
+ * @enum {Number}
+ */
 goog.ui.Scroller.ORIENTATION = {
   VERTICAL: 1,
   HORIZONTAL: 2,
   BOTH: 4,
-};
-
-
-goog.ui.Scroller.prototype.supportVertical = function () {
-  return this.orient_ & goog.ui.Scroller.ORIENTATION.VERTICAL ||
-    this.orient_ & goog.ui.Scroller.ORIENTATION.BOTH;
-};
-
-
-goog.ui.Scroller.prototype.supportHorizontal = function () {
-  return this.orient_ & goog.ui.Scroller.ORIENTATION.HORIZONTAL ||
-    this.orient_ & goog.ui.Scroller.ORIENTATION.BOTH;
 };
 
 
@@ -68,6 +59,11 @@ goog.ui.Scroller.prototype.minThumbLength_ = 15;
  * @type {?goog.ui.Scroller.Slider}
  */
 goog.ui.Scroller.prototype.vslider_;
+
+
+/**
+ * @type {?goog.ui.Scroller.Slider}
+ */
 goog.ui.Scroller.prototype.hslider_;
 
 
@@ -101,6 +97,24 @@ goog.ui.Scroller.prototype.CssBase_ = 'goog-scroller';
 
 
 /**
+ * @return {boolean}
+ */
+goog.ui.Scroller.prototype.supportVertical = function () {
+  return this.orient_ & goog.ui.Scroller.ORIENTATION.VERTICAL ||
+    this.orient_ & goog.ui.Scroller.ORIENTATION.BOTH;
+};
+
+
+/**
+ * @return {boolean}
+ */
+goog.ui.Scroller.prototype.supportHorizontal = function () {
+  return this.orient_ & goog.ui.Scroller.ORIENTATION.HORIZONTAL ||
+    this.orient_ & goog.ui.Scroller.ORIENTATION.BOTH;
+};
+
+
+/**
  */
 goog.ui.Scroller.prototype.update = function() {
   this.update_();
@@ -129,6 +143,9 @@ goog.ui.Scroller.prototype.setupSlider_ = function () {
 };
 
 
+/**
+ * @return {goog.ui.Scroller.Slider}
+ */
 goog.ui.Scroller.prototype.createSlider_ = function (orient) {
   var slider = new goog.ui.Scroller.Slider(this.getDomHelper());
   slider.setOrientation(orient);
@@ -137,13 +154,13 @@ goog.ui.Scroller.prototype.createSlider_ = function (orient) {
   return slider;
 };
 
+
 /**
  * @override
  * @param {Element} element
  */
 goog.ui.Scroller.prototype.decorateInternal = function(element) {
   goog.base(this, 'decorateInternal', element);
-
   if (this.supportVertical())   this.vslider_.render(this.getElement());
   if (this.supportHorizontal()) this.hslider_.render(this.getElement());
   this.update_();
@@ -172,50 +189,60 @@ goog.ui.Scroller.prototype.canDecorate = function(element) {
 goog.ui.Scroller.prototype.getHeight = function () {
   return this.height_;
 };
+
+
+/**
+ * @return {Number}
+ */
+goog.ui.Scroller.prototype.getWidth = function () {
+  return this.width_;
+};
   
 
 goog.ui.Scroller.prototype.update_ = function () {
   var container         = this.containerElm_;
 
-  // Setup variables
   if (this.supportVertical()) {
-    var height          = this.height_          = container.offsetHeight;
-    var scrollHeight    = this.scrollHeight_    = this.getScrollHeight();
+    var height             = this.height_           = container.offsetHeight;
+    var scrollHeight       = this.scrollHeight_     = this.getScrollHeight();
     this.vscrollableRange_ = scrollHeight - height;
   }
   if (this.supportHorizontal()) {
-    var width          = this.width_          = container.offsetWidth;
-    var scrollWidth    = this.scrollWidth_    = this.getScrollWidth();
+    var width              = this.width_          = container.offsetWidth;
+    var scrollWidth        = this.scrollWidth_    = this.getScrollWidth();
     this.hscrollableRange_ = scrollWidth - width;
   }
+  var venable = this.isOrientEnabled(goog.ui.Scroller.ORIENTATION.VERTICAL);
+  var henable = this.isOrientEnabled(goog.ui.Scroller.ORIENTATION.HORIZONTAL);
 
-  var venable = this.isVerticalEnabled();
-  var henable = this.isHorizontalEnabled();
-
-  // Update DOM sizes
   if (venable) {
-    this.adjustThumbHeight_(henable);
-    this.adjustValueByScrollTop_();
-    this.adjustUnitIncrementV_();
+    this.adjustThumbSize_(goog.ui.Scroller.ORIENTATION.VERTICAL, henable);
+    this.adjustValueByScroll_(goog.ui.Scroller.ORIENTATION.VERTICAL);
+    this.adjustUnitIncrement_(goog.ui.Scroller.ORIENTATION.VERTICAL);
   }
   if (henable) {
-    this.adjustThumbWidth_(venable);
-    this.adjustValueByScrollLeft_();
-    this.adjustUnitIncrementH_();
+    this.adjustThumbSize_(goog.ui.Scroller.ORIENTATION.HORIZONTAL, venable);
+    this.adjustValueByScroll_(goog.ui.Scroller.ORIENTATION.HORIZONTAL);
+    this.adjustUnitIncrement_(goog.ui.Scroller.ORIENTATION.HORIZONTAL);
   }
 
-  // Enable events and so forth
+  // XXX: Because of method spec, we calc isOrientEnabled again inside of this method.
   this.setEnabled(venable || henable);
 };
 
 
-goog.ui.Scroller.prototype.isVerticalEnabled = function () {
-  return this.supportVertical() && this.vscrollableRange_ > 0;
-};
-
-
-goog.ui.Scroller.prototype.isHorizontalEnabled = function () {
-  return this.supportHorizontal() && this.hscrollableRange_ > 0;
+/**
+ * @param {goog.ui.Scroller.ORIENTATION} orient
+ * @return {boolean}
+ */
+goog.ui.Scroller.prototype.isOrientEnabled = function (orient) {
+  var support, scrollableRange;
+  if (orient & goog.ui.Scroller.ORIENTATION.VERTICAL) {
+    return this.supportVertical() && this.vscrollableRange_ > 0;
+  } else if (orient & goog.ui.Scroller.ORIENTATION.HORIZONTAL) {
+    return this.supportHorizontal() && this.hscrollableRange_ > 0;
+  }
+  return false;
 };
 
 
@@ -235,12 +262,16 @@ goog.ui.Scroller.prototype.getScrollWidth = function () {
 };
 
 
+/**
+ * @override
+ * @param {boolean} enable
+ */
 goog.ui.Scroller.prototype.setEnabled = function (enable) {
   goog.base(this, 'setEnabled', enable);
   this.setMouseWheelEnable_(enable);
 
-  var venable = this.isVerticalEnabled();
-  var henable = this.isHorizontalEnabled();
+  var venable = this.isOrientEnabled(goog.ui.Scroller.ORIENTATION.VERTICAL);
+  var henable = this.isOrientEnabled(goog.ui.Scroller.ORIENTATION.HORIZONTAL);
 
   if (this.supportVertical()) {
     this.vslider_.setEnabled(venable);
@@ -285,21 +316,22 @@ goog.ui.Scroller.prototype.handleMouseWheel_ = function (e) {
 };
 
 
-goog.ui.Scroller.prototype.adjustThumbHeight_ = function (henable) {
-  var height = this.height_;
-  var rate = height / this.scrollHeight_;
-  goog.style.setHeight(this.vslider_.getElement(), henable ? height - 10 : '100%');
-  var thumbHeight = Math.max(rate * height, this.minThumbLength_);
-  goog.style.setHeight(this.vslider_.getValueThumb(), thumbHeight);
-};
-
-
-goog.ui.Scroller.prototype.adjustThumbWidth_ = function (venable) {
-  var width = this.width_;
-  var rate = width / this.scrollWidth_;
-  goog.style.setWidth(this.hslider_.getElement(), venable ? width - 10 : '100%');
-  var thumbWidth = Math.max(rate * width, this.minThumbLength_);
-  goog.style.setWidth(this.hslider_.getValueThumb(), thumbWidth);
+goog.ui.Scroller.prototype.adjustThumbSize_ = function (orient, isOppositEnable) {
+  var len, rate, setSize, slider;
+  if (orient & goog.ui.Scroller.ORIENTATION.VERTICAL) {
+    len = this.height_;
+    rate = len / this.scrollHeight_;
+    setSize = goog.style.setHeight;
+    slider = this.vslider_;
+  } else {
+    len = this.width_;
+    rate = len / this.scrollWidth_;
+    setSize = goog.style.setWidth;
+    slider = this.hslider_;
+  }
+  setSize(slider.getElement(), isOppositEnable ? len - 10 : '100%');
+  var thumbSize = Math.max(rate * len, this.minThumbLength_);
+  setSize(slider.getValueThumb(), thumbSize);
 };
 
 
@@ -308,15 +340,20 @@ goog.ui.Scroller.prototype.getScrollableRange = function () {
 };
 
 
-goog.ui.Scroller.prototype.adjustUnitIncrementV_ = function () {
-  var valueRange = this.scrollDistance_ / this.vscrollableRange_ * this.vslider_.getMaximum(); 
-  this.vslider_.setUnitIncrement(valueRange);
-};
-
-
-goog.ui.Scroller.prototype.adjustUnitIncrementH_ = function () {
-  var valueRange = this.scrollDistance_ / this.hscrollableRange_ * this.hslider_.getMaximum(); 
-  this.hslider_.setUnitIncrement(valueRange);
+/**
+ * @param {goog.ui.Scroller.ORIENTATION} orient
+ */
+goog.ui.Scroller.prototype.adjustUnitIncrement_ = function (orient) {
+  var scrollableRange, slider;
+  if (orient & goog.ui.Scroller.ORIENTATION.VERTICAL) {
+    scrollableRange = this.vscrollableRange_;
+    slider = this.vslider_;
+  } else {
+    scrollableRange = this.hscrollableRange_;
+    slider = this.hslider_;
+  }
+  var valueRange = this.scrollDistance_ / scrollableRange * slider.getMaximum(); 
+  slider.setUnitIncrement(valueRange);
 };
 
 
@@ -326,47 +363,56 @@ goog.ui.Scroller.prototype.setZero = function () {
 };
 
 
-goog.ui.Scroller.prototype.getSlider = function () {
+/**
+ * @param {?goog.ui.Scroller.ORIENTATION=} opt_orient
+ * @return {goog.ui.Scroller.Slider}
+ */
+goog.ui.Scroller.prototype.getSlider = function (opt_orient) {
+  if (opt_orient & goog.ui.Scroller.ORIENTATION.HORIZONTAL) return this.hslider_;
   return this.vslider_;
 };
 
 
-goog.ui.Scroller.prototype.adjustScrollTop_ = function () {
-  if (this.supportVertical())   this.containerElm_.scrollTop =  this.vscrollableRange_ * this.vslider_.getRate();
-  if (this.supportHorizontal()) this.containerElm_.scrollLeft = this.hscrollableRange_ * this.hslider_.getRate();
-};
-
-
-
-goog.ui.Scroller.prototype.canChangeScrollTop_ = true;
-
-
 /**
- * Set value without dispatch CHANGE event.
+ * @param {goog.ui.SliderBase.Orientation} orient
  */
-goog.ui.Scroller.prototype.adjustValueByScrollTop_ = function () {
-  var currRate = this.containerElm_.scrollTop / this.vscrollableRange_;
-  var value = currRate * this.vslider_.getMaximum();
-
-  this.canChangeScrollTop_ = false;
-  this.vslider_.setValueFromStart(value);
-  this.canChangeScrollTop_ = true;
+goog.ui.Scroller.prototype.adjustScrollTop_ = function (orient) {
+  if (orient == goog.ui.SliderBase.Orientation.VERTICAL)        this.containerElm_.scrollTop =  this.vscrollableRange_ * this.vslider_.getRate();
+  else if (orient == goog.ui.SliderBase.Orientation.HORIZONTAL) this.containerElm_.scrollLeft = this.hscrollableRange_ * this.hslider_.getRate();
 };
 
 
 /**
- * Set value without dispatch CHANGE event.
+ * @type {boolean}
  */
-goog.ui.Scroller.prototype.adjustValueByScrollLeft_ = function () {
-  var currRate = this.containerElm_.scrollLeft / this.hscrollableRange_;
-  var value = currRate * this.hslider_.getMaximum();
+goog.ui.Scroller.prototype.canChangeScroll_ = true;
 
-  this.canChangeScrollLeft_ = false;
-  this.hslider_.setValueFromStart(value);
-  this.canChangeScrollLeft_ = true;
+
+/**
+ * @param {goog.ui.Scroller.ORIENTATION} orient
+ */
+goog.ui.Scroller.prototype.adjustValueByScroll_ = function (orient) {
+  var currScroll, scrollableRange, slider;
+  if (orient & goog.ui.Scroller.ORIENTATION.VERTICAL) {
+    currScroll = this.containerElm_.scrollTop;
+    scrollableRange = this.vscrollableRange_
+    slider = this.vslider_;
+  } else {
+    currScroll = this.containerElm_.scrollLeft;
+    scrollableRange = this.hscrollableRange_
+    slider = this.hslider_;
+  }
+  var currRate = currScroll / scrollableRange;
+  var value = currRate * slider.getMaximum();
+  this.canChangeScroll_ = false;
+  slider.setValueFromStart(value);
+  this.canChangeScroll_ = true;
 };
 
 
+/**
+ * @override
+ */
 goog.ui.Scroller.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
   var eh = this.getHandler().listen(this.getElement(), goog.events.EventType.FOCUS, this.handleFocus_);
@@ -379,13 +425,25 @@ goog.ui.Scroller.prototype.enterDocument = function() {
 };
 
 
+/**
+ * @type {Number}
+ */
 goog.ui.Scroller.prototype.vlastValue_ = 0;
+
+
+/**
+ * @type {Number}
+ */
 goog.ui.Scroller.prototype.hlastValue_ = 0;
 
+
+/**
+ * @param {goog.events.Event} e
+ */
 goog.ui.Scroller.prototype.handleChange_ = function (e) {
   var slider = e.target;
-  if (slider && this.canChangeScrollTop_) {
-    this.adjustScrollTop_();
+  if (slider && this.canChangeScroll_) {
+    this.adjustScrollTop_(slider.getOrientation());
 
     var currValue = slider.getValueFromStart();
     this.dispatchEvent({
@@ -422,15 +480,6 @@ goog.ui.Scroller.prototype.handleKeyEventInternal = function (e) {
     return e.getBrowserEvent().defaultPrevented;
   }
 };
-
-
-goog.ui.Scroller.prototype.handleFocus_ = function (e) {
-  // var sliderElm = this.supportVertical() ? this.vslider_.getElement() : this.hslider_.getElement();
-  // if (sliderElm && goog.style.isElementShown(sliderElm) && goog.dom.isFocusableTabIndex(sliderElm)) {
-  //   sliderElm.focus();
-  // }
-};
-
 
 
 

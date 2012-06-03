@@ -468,12 +468,17 @@ goog.ui.Scroller.Slider.prototype.setOrientation = function (orient) {
 goog.ui.Scroller.Slider.prototype.createThumbs = function() {
   var dh = this.getDomHelper();
   var element = this.getElement();
+  goog.dom.classes.add(element, this.CssBase_);
   var thumb = dh.createDom('div', goog.getCssName(this.CssBase_, 'thumb'));
   dh.appendChild(element, thumb);
   this.valueThumb = this.extentThumb = thumb;
 };
 
 
+/**
+ * @param {goog.ui.SliderBase.Orientation} orient
+ * @return {String} cssName.
+ */
 goog.ui.Scroller.Slider.prototype.getCssClass = function(orient) {
   return orient == goog.ui.SliderBase.Orientation.VERTICAL ?
       goog.getCssName(this.CssBase_, 'vertical') :
@@ -481,14 +486,25 @@ goog.ui.Scroller.Slider.prototype.getCssClass = function(orient) {
 };
 
 
+/**
+ * @param {Number} val
+ */
 goog.ui.Scroller.Slider.prototype.setValueFromStart = function (val) {
   this.setValue(this.upsidedown_ ? this.getMaximum() - val : val);
 };
 
+
+/**
+ * @return {Number} 0 to 1.
+ */
 goog.ui.Scroller.Slider.prototype.getRate = function () {
   return this.getValueFromStart() / this.getMaximum();
 };
 
+
+/**
+ * @return {Number}
+ */
 goog.ui.Scroller.Slider.prototype.getValueFromStart = function () {
   return this.upsidedown_ ? this.getMaximum() - this.getValue() : this.getValue();
 };

@@ -110,7 +110,7 @@
   function testScrollByKeydown () {
     appendItems();
     goog.testing.events.fireClickSequence(scroller.getElement());
-    assertEquals(document.activeElement, scroller.getSlider().getElement());
+    assertEquals(document.activeElement, scroller.getElement());
 
     assertEquals(0, scroller.getContentElement().scrollTop);
     goog.testing.events.fireKeySequence(scroller.getSlider().getElement(),

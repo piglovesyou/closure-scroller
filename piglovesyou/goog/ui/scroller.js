@@ -9,16 +9,16 @@ goog.require('goog.ui.Slider');
  * @constructor
  * @param {?goog.ui.Scroller.ORIENTATION=} 
  */
-goog.ui.Scroller = function (orient, opt_domHelper) {
+goog.ui.Scroller = function (opt_orient, opt_domHelper) {
   goog.base(this, '', opt_domHelper);
 
   /**
    * @type {goog.ui.Scroller.ORIENTATION}
    */
   this.orient_ = 
-    orient & goog.ui.Scroller.ORIENTATION.HORIZONTAL ||
-    orient & goog.ui.Scroller.ORIENTATION.BOTH ?
-    orient : goog.ui.Scroller.ORIENTATION.VERTICAL; /* default */
+    opt_orient & goog.ui.Scroller.ORIENTATION.HORIZONTAL ||
+    opt_orient & goog.ui.Scroller.ORIENTATION.BOTH ?
+    opt_orient : goog.ui.Scroller.ORIENTATION.VERTICAL; /* default */
 
   this.setupSlider_();
 };
@@ -76,13 +76,20 @@ goog.ui.Scroller.prototype.containerElm_;
 /**
  * @type {?Number}
  */
-goog.ui.Scroller.prototype.scrollHeight;
+goog.ui.Scroller.prototype.scrollHeight_;
 
 
 /**
  * @type {?Number}
  */
-goog.ui.Scroller.prototype.scrollableRange_;
+goog.ui.Scroller.prototype.vscrollableRange_;
+
+
+/**
+ * @type {?Number}
+ */
+goog.ui.Scroller.prototype.hscrollableRange_;
+
 
 /**
  * @type {?Number}
@@ -91,9 +98,33 @@ goog.ui.Scroller.prototype.height_;
 
 
 /**
+ * @type {?Number}
+ */
+goog.ui.Scroller.prototype.width_;
+
+
+/**
  * @type {String}
  */
 goog.ui.Scroller.prototype.CssBase_ = 'goog-scroller';
+
+
+/**
+ * @type {boolean}
+ */
+goog.ui.Scroller.prototype.canChangeScroll_ = true;
+
+
+/**
+ * @type {Number}
+ */
+goog.ui.Scroller.prototype.vlastValue_ = 0;
+
+
+/**
+ * @type {Number}
+ */
+goog.ui.Scroller.prototype.hlastValue_ = 0;
 
 
 /**
@@ -199,9 +230,10 @@ goog.ui.Scroller.prototype.getWidth = function () {
 };
   
 
+/**
+ */
 goog.ui.Scroller.prototype.update_ = function () {
   var container         = this.containerElm_;
-
   if (this.supportVertical()) {
     var height             = this.height_           = container.offsetHeight;
     var scrollHeight       = this.scrollHeight_     = this.getScrollHeight();
@@ -215,18 +247,19 @@ goog.ui.Scroller.prototype.update_ = function () {
   var venable = this.isOrientEnabled(goog.ui.Scroller.ORIENTATION.VERTICAL);
   var henable = this.isOrientEnabled(goog.ui.Scroller.ORIENTATION.HORIZONTAL);
 
-  if (venable) {
+  if (this.supportVertical()) {
     this.adjustThumbSize_(goog.ui.Scroller.ORIENTATION.VERTICAL, henable);
     this.adjustValueByScroll_(goog.ui.Scroller.ORIENTATION.VERTICAL);
     this.adjustUnitIncrement_(goog.ui.Scroller.ORIENTATION.VERTICAL);
   }
-  if (henable) {
+  if (this.supportHorizontal()) {
     this.adjustThumbSize_(goog.ui.Scroller.ORIENTATION.HORIZONTAL, venable);
     this.adjustValueByScroll_(goog.ui.Scroller.ORIENTATION.HORIZONTAL);
     this.adjustUnitIncrement_(goog.ui.Scroller.ORIENTATION.HORIZONTAL);
   }
 
-  // XXX: Because of method spec, we calc isOrientEnabled again inside of this method.
+  // XXX: Because the method accepts only one argument,
+  //        we calc isOrientEnabled again inside of this method.
   this.setEnabled(venable || henable);
 };
 
@@ -290,6 +323,10 @@ goog.ui.Scroller.prototype.setEnabled = function (enable) {
 goog.ui.Scroller.prototype.mouseWheelHandler_;
 
 
+/**
+ * Switch mouse wheel event listening.
+ * @param {boolean} enable
+ */
 goog.ui.Scroller.prototype.setMouseWheelEnable_ = function (enable) {
   if (enable) {
     if (!this.mouseWheelHandler_) {
@@ -305,6 +342,9 @@ goog.ui.Scroller.prototype.setMouseWheelEnable_ = function (enable) {
 };
 
 
+/**
+ * @param {goog.events.MouseWheelEvent} e
+ */
 goog.ui.Scroller.prototype.handleMouseWheel_ = function (e) {
   // If scroller only supports HORIZONTAL, then deltaY gets effect to hslider_.
   var slider = this.supportVertical() && e.deltaY ? this.vslider_ : this.hslider_;
@@ -316,6 +356,9 @@ goog.ui.Scroller.prototype.handleMouseWheel_ = function (e) {
 };
 
 
+/**
+ * @param {goog.ui.Scroller.ORIENTATION} orient
+ */
 goog.ui.Scroller.prototype.adjustThumbSize_ = function (orient, isOppositEnable) {
   var len, rate, setSize, slider;
   if (orient & goog.ui.Scroller.ORIENTATION.VERTICAL) {
@@ -335,8 +378,13 @@ goog.ui.Scroller.prototype.adjustThumbSize_ = function (orient, isOppositEnable)
 };
 
 
-goog.ui.Scroller.prototype.getScrollableRange = function () {
-  return this.supportVertical() ? this.vscrollableRange_ : this.hscrollableRange_;
+/**
+ * @param {?goog.ui.Scroller.ORIENTATION=} opt_orient
+ * @return {Number}
+ */
+goog.ui.Scroller.prototype.getScrollableRange = function (opt_orient) {
+  if (opt_orient & goog.ui.Scroller.ORIENTATION.HORIZONTAL) return this.vscrollableRange_;
+  return this.hscrollableRange_;
 };
 
 
@@ -357,6 +405,8 @@ goog.ui.Scroller.prototype.adjustUnitIncrement_ = function (orient) {
 };
 
 
+/**
+ */
 goog.ui.Scroller.prototype.setZero = function () {
   if (this.supportVertical())   this.vslider_.setValueFromStart(0);
   if (this.supportHorizontal()) this.hslider_.setValueFromStart(0);
@@ -374,18 +424,12 @@ goog.ui.Scroller.prototype.getSlider = function (opt_orient) {
 
 
 /**
- * @param {goog.ui.SliderBase.Orientation} orient
+ * @param {goog.ui.Scroller.ORIENTATION} orient
  */
 goog.ui.Scroller.prototype.adjustScrollTop_ = function (orient) {
-  if (orient == goog.ui.SliderBase.Orientation.VERTICAL)        this.containerElm_.scrollTop =  this.vscrollableRange_ * this.vslider_.getRate();
-  else if (orient == goog.ui.SliderBase.Orientation.HORIZONTAL) this.containerElm_.scrollLeft = this.hscrollableRange_ * this.hslider_.getRate();
+  if (orient & goog.ui.Scroller.ORIENTATION.VERTICAL)         this.containerElm_.scrollTop =  this.vscrollableRange_ * this.vslider_.getRate();
+  else if (orient == goog.ui.Scroller.ORIENTATION.HORIZONTAL) this.containerElm_.scrollLeft = this.hscrollableRange_ * this.hslider_.getRate();
 };
-
-
-/**
- * @type {boolean}
- */
-goog.ui.Scroller.prototype.canChangeScroll_ = true;
 
 
 /**
@@ -415,26 +459,11 @@ goog.ui.Scroller.prototype.adjustValueByScroll_ = function (orient) {
  */
 goog.ui.Scroller.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
-  var eh = this.getHandler().listen(this.getElement(), goog.events.EventType.FOCUS, this.handleFocus_);
-  
-  if (this.supportVertical())   eh.listen(this.vslider_, goog.ui.Component.EventType.CHANGE, this.handleChange_);
-  if (this.supportHorizontal()) eh.listen(this.hslider_, goog.ui.Component.EventType.CHANGE, this.handleChange_);
-  
+  if (this.supportVertical())   this.getHandler().listen(this.vslider_, goog.ui.Component.EventType.CHANGE, this.handleChange_);
+  if (this.supportHorizontal()) this.getHandler().listen(this.hslider_, goog.ui.Component.EventType.CHANGE, this.handleChange_);
   this.setZero();
   this.containerElm_.scrollTop = 0;
 };
-
-
-/**
- * @type {Number}
- */
-goog.ui.Scroller.prototype.vlastValue_ = 0;
-
-
-/**
- * @type {Number}
- */
-goog.ui.Scroller.prototype.hlastValue_ = 0;
 
 
 /**
@@ -443,20 +472,26 @@ goog.ui.Scroller.prototype.hlastValue_ = 0;
 goog.ui.Scroller.prototype.handleChange_ = function (e) {
   var slider = e.target;
   if (slider && this.canChangeScroll_) {
-    this.adjustScrollTop_(slider.getOrientation());
+    var orient = slider.getOrientation()  === goog.ui.SliderBase.Orientation.VERTICAL ?
+        goog.ui.Scroller.ORIENTATION.VERTICAL : goog.ui.Scroller.ORIENTATION.HORIZONTAL;
+    this.adjustScrollTop_(orient);
 
+    var lastValue = orient & goog.ui.Scroller.ORIENTATION.VERTICAL ? this.vlastValue_ : this.hlastValue_;
     var currValue = slider.getValueFromStart();
     this.dispatchEvent({
       type: goog.ui.Scroller.EventType.SCROLL,
-      delta: this.lastValue_ < currValue ? 1 : -1
+      delta: lastValue < currValue ? 1 : -1
     });
-    this.lastValue_ = currValue;
+    if (orient & goog.ui.Scroller.ORIENTATION.VERTICAL) this.vlastValue_ = currValue;
+    else this.hlastValue_ = currValue;
   }
 };
 
 
 /**
  * @override
+ * @param {goog.events.KeyEvent} e Key event to handle.
+ * @return {boolean}
  */
 goog.ui.Scroller.prototype.handleKeyEventInternal = function (e) {
   var orient = this.orient_;

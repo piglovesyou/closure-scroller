@@ -202,7 +202,7 @@
         scroller.update();
         // br
         var br = goog.dom.getLastElementChild(container);
-        if (br.nodeName == goog.dom.TagName.BR) goog.dom.removeNode(br);
+        if (br && br.nodeName == goog.dom.TagName.BR) goog.dom.removeNode(br);
         if (goog.dom.getChildren(container).length == 0) {
           var buttonElm = e.target;
           buttonElm.setAttribute('disabled', 'disabled');

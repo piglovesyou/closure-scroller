@@ -7,6 +7,7 @@ goog.require('goog.ui.Slider');
 
 /**
  * @constructor
+ * @param {?goog.ui.Scroller.ORIENTATION=} 
  */
 goog.ui.Scroller = function (orient, opt_domHelper) {
   goog.base(this, '', opt_domHelper);
@@ -17,7 +18,7 @@ goog.ui.Scroller = function (orient, opt_domHelper) {
   this.orient_ = 
     orient & goog.ui.Scroller.ORIENTATION.HORIZONTAL ||
     orient & goog.ui.Scroller.ORIENTATION.BOTH ?
-    orient : goog.ui.Scroller.ORIENTATION.VERTICAL;
+    orient : goog.ui.Scroller.ORIENTATION.VERTICAL; /* default */
 
   this.setupSlider_();
 };
@@ -274,10 +275,10 @@ goog.ui.Scroller.prototype.setMouseWheelEnable_ = function (enable) {
 
 
 goog.ui.Scroller.prototype.handleMouseWheel_ = function (e) {
-  var slider = this.supportVertical() ? this.vslider_ : this.hslider_;
-  if (!goog.dom.contains(slider.getElement(), e.target)) {
+  // If scroller only supports HORIZONTAL, then deltaY gets effect to hslider_.
+  var slider = this.supportVertical() && e.deltaY ? this.vslider_ : this.hslider_;
+  if (slider && !goog.dom.contains(slider.getElement(), e.target)) {
     // XXX: Access to private method
-
     if (slider.getOrientation() === goog.ui.SliderBase.Orientation.HORIZONTAL) e.detail = -e.detail;
     goog.ui.SliderBase.prototype.handleMouseWheel_.call(slider, e);
   }
@@ -365,6 +366,7 @@ goog.ui.Scroller.prototype.adjustValueByScrollLeft_ = function () {
   this.canChangeScrollLeft_ = true;
 };
 
+
 goog.ui.Scroller.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
   var eh = this.getHandler().listen(this.getElement(), goog.events.EventType.FOCUS, this.handleFocus_);
@@ -395,11 +397,38 @@ goog.ui.Scroller.prototype.handleChange_ = function (e) {
 };
 
 
-goog.ui.Scroller.prototype.handleFocus_ = function (e) {
-  var sliderElm = this.supportVertical() ? this.vslider_.getElement() : this.hslider_.getElement();
-  if (sliderElm && goog.style.isElementShown(sliderElm) && goog.dom.isFocusableTabIndex(sliderElm)) {
-    sliderElm.focus();
+/**
+ * @override
+ */
+goog.ui.Scroller.prototype.handleKeyEventInternal = function (e) {
+  var orient = this.orient_;
+  var slider;
+  if (orient & goog.ui.Scroller.ORIENTATION.VERTICAL) {
+    slider = this.vslider_;
+  } else if (orient & goog.ui.Scroller.ORIENTATION.HORIZONTAL) {
+    slider = this.hslider_;
+  } else if (orient & goog.ui.Scroller.ORIENTATION.BOTH) {
+    if (e.keyCode == goog.events.KeyCodes.LEFT ||
+        e.keyCode == goog.events.KeyCodes.RIGHT) {
+      slider = this.hslider_;    
+    } else {
+      slider = this.vslider_;
+    }
   }
+  if (slider) {
+    // XXX: Access to private method.
+    slider.handleKeyDown_(e);
+    // SliderBase's api sucks.. return always true.
+    return e.getBrowserEvent().defaultPrevented;
+  }
+};
+
+
+goog.ui.Scroller.prototype.handleFocus_ = function (e) {
+  // var sliderElm = this.supportVertical() ? this.vslider_.getElement() : this.hslider_.getElement();
+  // if (sliderElm && goog.style.isElementShown(sliderElm) && goog.dom.isFocusableTabIndex(sliderElm)) {
+  //   sliderElm.focus();
+  // }
 };
 
 

@@ -1,5 +1,6 @@
 .goog-scroller {
   position: relative;
+  outline: none;
 }
 .goog-scroller-container {
   height: 100%;

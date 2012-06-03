@@ -98,12 +98,12 @@
   function testScroll () {
     appendItems();
 
-    assertEquals(0, scroller.getSlider().getValueFromTop());
+    assertEquals(0, scroller.getSlider().getValueFromStart());
     assertEquals(0, scroller.getContentElement().scrollTop);
 
-    scroller.getSlider().setValueFromTop(1000);
+    scroller.getSlider().setValueFromStart(1000);
 
-    assertEquals(1000, scroller.getSlider().getValueFromTop());
+    assertEquals(1000, scroller.getSlider().getValueFromStart());
     assertTrue(scroller.getContentElement().scrollTop > 0);
   }
 

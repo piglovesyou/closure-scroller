@@ -39,7 +39,7 @@ goog.ui.Scroller.EventType = {
 goog.ui.Scroller.ORIENTATION = {
   VERTICAL: 1,
   HORIZONTAL: 2,
-  BOTH: 4,
+  BOTH: 4
 };
 
 
@@ -203,7 +203,7 @@ goog.ui.Scroller.prototype.decorateInternal = function(element) {
  * @param {Element} element
  */
 goog.ui.Scroller.prototype.canDecorate = function(element) {
-  if (element && goog.dom.classes.has(element, goog.getCssName(this.CssBase_))) {
+  if (element && goog.dom.classes.has(element, this.CssBase_)) {
     var container = goog.dom.getElementByClass(goog.getCssName(this.CssBase_, 'container'), element);
     if (container) {
       this.containerElm_ = container;

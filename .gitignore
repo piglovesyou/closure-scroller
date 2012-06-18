@@ -1,3 +1,5 @@
 .DS_Store
 closure-library-read-only
 closure-library
+closure-compiler
+tmp

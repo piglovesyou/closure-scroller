@@ -425,8 +425,9 @@ goog.ui.Scroller.prototype.getSlider = function (opt_orient) {
 
 /**
  * @param {goog.ui.Scroller.ORIENTATION} orient
+ * @protected
  */
-goog.ui.Scroller.prototype.adjustScrollTop_ = function (orient) {
+goog.ui.Scroller.prototype.adjustScrollTop = function (orient) {
   if (orient & goog.ui.Scroller.ORIENTATION.VERTICAL)         this.containerElm_.scrollTop =  this.vscrollableRange_ * this.vslider_.getRate();
   else if (orient == goog.ui.Scroller.ORIENTATION.HORIZONTAL) this.containerElm_.scrollLeft = this.hscrollableRange_ * this.hslider_.getRate();
 };
@@ -474,7 +475,7 @@ goog.ui.Scroller.prototype.handleChange_ = function (e) {
   if (slider && this.canChangeScroll_) {
     var orient = slider.getOrientation()  === goog.ui.SliderBase.Orientation.VERTICAL ?
         goog.ui.Scroller.ORIENTATION.VERTICAL : goog.ui.Scroller.ORIENTATION.HORIZONTAL;
-    this.adjustScrollTop_(orient);
+    this.adjustScrollTop(orient);
 
     var lastValue = orient & goog.ui.Scroller.ORIENTATION.VERTICAL ? this.vlastValue_ : this.hlastValue_;
     var currValue = slider.getValueFromStart();

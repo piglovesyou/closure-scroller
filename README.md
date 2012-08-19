@@ -9,15 +9,22 @@ Provides you a scrolling UI like a DOM element with overflow:scroll.
 
 
 ### Test
-First, clone this project and download Closure Library.
+
+#### 1. Browser Test
+First, download Closure Library and Closure Compiler.
 ```bash
-$ git clone git@github.com:piglovesyou/closure-scroller.git
-$ cd closure-scroller
-$ svn checkout http://closure-library.googlecode.com/svn/trunk/ closure-library-read-only
+$ make setup
 ```
 Then, access ```./piglovesyou/goog/ui/scroller_test.html``` by a browser.
 
-Tested revision of Closure Library is 1932.
+Tested revision of Closure Library is 2113.
+
+#### 2. Code-Checking by Closure Compiler
+Run 
+```bash
+$ make compile
+```
+
 
 
 

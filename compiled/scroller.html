@@ -1,0 +1,173 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>goog.ui.Scroller</title>
+  <link rel="stylesheet" href="../piglovesyou/goog/css/scroller.css" />
+
+  <style type="text/css">
+    #my-vscroller {
+      height: 200px;
+      width: 200px;
+      border: 1px #999 solid;
+    }
+    #my-vscroller .item {
+      padding: 10px;
+      border-bottom: 1px #999 solid;
+      background: lightblue;
+    }
+    #my-vscroller .item:last-child {
+      border-bottom: none;
+    }
+
+    #my-hscroller {
+      height: 200px;
+      width: 200px;
+      border: 1px #999 solid;
+    }
+    #my-hscroller .goog-scroller-container {
+      white-space: nowrap;
+    }
+    #my-hscroller .item {
+      display: inline-block;
+      height: 180px;
+      padding: 10px;
+      border-right: 1px #999 solid;
+      background: lightgreen;
+    }
+    #my-hscroller .item:last-child {
+      border-bottom: none;
+    }
+
+    #my-bscroller {
+      height: 200px;
+      width: 200px;
+      border: 1px #999 solid;
+    }
+    #my-bscroller .goog-scroller-container {
+      white-space: nowrap;
+    }
+    #my-bscroller .item {
+      display: inline-block;
+      width       : 70px;
+      height      : 70px;
+      line-height : 70px;
+      text-align: center;
+      
+      padding: 10px;
+      border-right: 1px #999 solid;
+      border-bottom: 1px #999 solid;
+      background: lightpink;
+    }
+    #my-hscroller .item:last-child {
+      border-bottom: none;
+    }
+
+
+     table {
+      border-collapse: collapse;
+      background: 
+    }
+    table th,
+    table td {
+      border: 1px #ccc solid;
+      padding: 1em 2em;
+    }
+    table td { 
+      vertical-align: top;
+    }
+  </style>
+
+</head>
+<body>
+
+  <h1>goog.ui.Scroller</h1>
+
+  <table>
+  	<tr>
+  		<th>Vertical</th>
+  		<th>Horizontal</th>
+  		<th>Both</th>
+  	</tr>
+    <tr>
+      <td>
+
+        <div id="my-vscroller" class="goog-scroller">
+          <div class="goog-scroller-container">
+            <div class="item">item1</div>
+            <div class="item">item2</div>
+            <div class="item">item3</div>
+            <div class="item">item4</div>
+            <div class="item">item5</div>
+            <div class="item">item6</div>
+            <div class="item">item7</div>
+            <div class="item">item8</div>
+            <div class="item">item9</div>
+            <div class="item">item10</div>
+            <div class="item">item11</div>
+            <div class="item">item12</div>
+          </div>
+        </div>
+        <button id="vdecrementButton">Decrement items</button>
+
+      </td>
+      <td>
+      
+        <div id="my-hscroller" class="goog-scroller">
+          <div class="goog-scroller-container">
+            <div class="item">item1</div><!--
+         --><div class="item">item2</div><!--
+         --><div class="item">item3</div><!--
+         --><div class="item">item4</div><!--
+         --><div class="item">item5</div><!--
+         --><div class="item">item6</div><!--
+         --><div class="item">item7</div><!--
+         --><div class="item">item8</div><!--
+         --><div class="item">item9</div><!--
+         --><div class="item">item10</div><!--
+         --><div class="item">item11</div><!--
+         --><div class="item">item12</div><!--
+         --><div class="item">item13</div>
+          </div>
+        </div>
+        <button id="hdecrementButton">Decrement items</button>
+
+      </td>
+
+      <td>
+      
+        <div id="my-bscroller" class="goog-scroller">
+          <div class="goog-scroller-container">
+            <div class="item">item1</div><!--
+         --><div class="item">item2</div><!--
+         --><div class="item">item3</div><!--
+         --><div class="item">item4</div><br />
+            <div class="item">item5</div><!--
+         --><div class="item">item6</div><!--
+         --><div class="item">item7</div><!--
+         --><div class="item">item8</div><br />
+            <div class="item">item9</div><!--
+         --><div class="item">item10</div><!--
+         --><div class="item">item11</div><!--
+         --><div class="item">item12</div><br />
+            <div class="item">item13</div><!--
+         --><div class="item">item14</div><!--
+         --><div class="item">item15</div><!--
+         --><div class="item">item16</div><br />
+ 
+                    
+          </div>
+        </div>
+        <button id="bdecrementButton">Decrement items</button>
+
+      </td>
+    </tr>
+  </table>
+
+  <script src="./min.js"></script>
+  <script>
+    my.app();
+  </script>
+
+</body>
+</html>

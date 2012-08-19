@@ -1,5 +1,5 @@
 .DS_Store
+closure
 closure-library-read-only
-closure-library
 closure-compiler
-tmp
+compiled/min.js

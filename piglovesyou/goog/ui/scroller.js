@@ -15,10 +15,11 @@ goog.require('goog.ui.Slider');
 
 /**
  * @constructor
- * @param {?goog.ui.Scroller.ORIENTATION=} 
+ * @param {?goog.ui.Scroller.ORIENTATION=} opt_orient
+ * @extends {goog.ui.Control}
  */
 goog.ui.Scroller = function (opt_orient, opt_domHelper) {
-  goog.base(this, '', opt_domHelper);
+  goog.base(this, '', null, opt_domHelper);
 
   /**
    * @type {goog.ui.Scroller.ORIENTATION}
@@ -34,7 +35,7 @@ goog.inherits(goog.ui.Scroller, goog.ui.Control);
 
 
 /**
- * @enum {String}
+ * @enum {string}
  */
 goog.ui.Scroller.EventType = {
   SCROLL: 'scroll'

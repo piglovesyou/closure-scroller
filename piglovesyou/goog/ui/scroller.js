@@ -16,6 +16,7 @@ goog.require('goog.ui.Slider');
 /**
  * @constructor
  * @param {?goog.ui.Scroller.ORIENTATION=} opt_orient
+ * @param {goog.dom.DomHelper=} opt_domHelper
  * @extends {goog.ui.Control}
  */
 goog.ui.Scroller = function (opt_orient, opt_domHelper) {
@@ -24,10 +25,10 @@ goog.ui.Scroller = function (opt_orient, opt_domHelper) {
   /**
    * @type {goog.ui.Scroller.ORIENTATION}
    */
-  this.orient_ = 
-    opt_orient & goog.ui.Scroller.ORIENTATION.HORIZONTAL ||
+  this.orient_ = /** @type {goog.ui.Scroller.ORIENTATION} */
+    (opt_orient & goog.ui.Scroller.ORIENTATION.HORIZONTAL ||
     opt_orient & goog.ui.Scroller.ORIENTATION.BOTH ?
-    opt_orient : goog.ui.Scroller.ORIENTATION.VERTICAL; /* default */
+    opt_orient : goog.ui.Scroller.ORIENTATION.VERTICAL); /* default */
 
   this.setupSlider_();
 };
@@ -43,7 +44,7 @@ goog.ui.Scroller.EventType = {
 
 
 /**
- * @enum {Number}
+ * @enum {number}
  */
 goog.ui.Scroller.ORIENTATION = {
   VERTICAL: 1,
@@ -53,13 +54,13 @@ goog.ui.Scroller.ORIENTATION = {
 
 
 /**
- * @type {Number}
+ * @type {number}
  */
 goog.ui.Scroller.prototype.scrollDistance_ = 15;
 
 
 /**
- * @type {Number}
+ * @type {number}
  */
 goog.ui.Scroller.prototype.minThumbLength_ = 15;
 
@@ -83,37 +84,37 @@ goog.ui.Scroller.prototype.containerElm_;
 
 
 /**
- * @type {?Number}
+ * @type {?number}
  */
 goog.ui.Scroller.prototype.scrollHeight_;
 
 
 /**
- * @type {?Number}
+ * @type {?number}
  */
 goog.ui.Scroller.prototype.vscrollableRange_;
 
 
 /**
- * @type {?Number}
+ * @type {?number}
  */
 goog.ui.Scroller.prototype.hscrollableRange_;
 
 
 /**
- * @type {?Number}
+ * @type {?number}
  */
 goog.ui.Scroller.prototype.height_;
 
 
 /**
- * @type {?Number}
+ * @type {?number}
  */
 goog.ui.Scroller.prototype.width_;
 
 
 /**
- * @type {String}
+ * @type {string}
  */
 goog.ui.Scroller.prototype.CssBase_ = 'goog-scroller';
 
@@ -125,13 +126,13 @@ goog.ui.Scroller.prototype.canChangeScroll_ = true;
 
 
 /**
- * @type {Number}
+ * @type {number}
  */
 goog.ui.Scroller.prototype.vlastValue_ = 0;
 
 
 /**
- * @type {Number}
+ * @type {number}
  */
 goog.ui.Scroller.prototype.hlastValue_ = 0;
 
@@ -140,8 +141,8 @@ goog.ui.Scroller.prototype.hlastValue_ = 0;
  * @return {boolean}
  */
 goog.ui.Scroller.prototype.supportVertical = function () {
-  return this.orient_ & goog.ui.Scroller.ORIENTATION.VERTICAL ||
-    this.orient_ & goog.ui.Scroller.ORIENTATION.BOTH;
+  return !!(this.orient_ & goog.ui.Scroller.ORIENTATION.VERTICAL ||
+    this.orient_ & goog.ui.Scroller.ORIENTATION.BOTH);
 };
 
 
@@ -149,8 +150,8 @@ goog.ui.Scroller.prototype.supportVertical = function () {
  * @return {boolean}
  */
 goog.ui.Scroller.prototype.supportHorizontal = function () {
-  return this.orient_ & goog.ui.Scroller.ORIENTATION.HORIZONTAL ||
-    this.orient_ & goog.ui.Scroller.ORIENTATION.BOTH;
+  return !!(this.orient_ & goog.ui.Scroller.ORIENTATION.HORIZONTAL ||
+    this.orient_ & goog.ui.Scroller.ORIENTATION.BOTH);
 };
 
 
@@ -224,7 +225,7 @@ goog.ui.Scroller.prototype.canDecorate = function(element) {
 
 
 /**
- * @return {Number}
+ * @return {?number}
  */
 goog.ui.Scroller.prototype.getHeight = function () {
   return this.height_;
@@ -232,7 +233,7 @@ goog.ui.Scroller.prototype.getHeight = function () {
 
 
 /**
- * @return {Number}
+ * @return {?number}
  */
 goog.ui.Scroller.prototype.getWidth = function () {
   return this.width_;
@@ -389,7 +390,7 @@ goog.ui.Scroller.prototype.adjustThumbSize_ = function (orient, isOppositEnable)
 
 /**
  * @param {?goog.ui.Scroller.ORIENTATION=} opt_orient
- * @return {Number}
+ * @return {?number}
  */
 goog.ui.Scroller.prototype.getScrollableRange = function (opt_orient) {
   if (opt_orient & goog.ui.Scroller.ORIENTATION.HORIZONTAL) return this.hscrollableRange_;
@@ -523,6 +524,8 @@ goog.ui.Scroller.prototype.handleKeyEventInternal = function (e) {
     slider.handleKeyDown_(e);
     // SliderBase's api sucks.. return always true.
     return e.getBrowserEvent().defaultPrevented;
+  } else {
+    return false;
   }
 };
 
@@ -533,8 +536,9 @@ goog.ui.Scroller.prototype.handleKeyEventInternal = function (e) {
 
 /**
  * @constructor
+ * @extends {goog.ui.SliderBase}
  */
-goog.ui.Scroller.Slider = function (upsidedown, opt_domHelper) {
+goog.ui.Scroller.Slider = function (opt_domHelper) {
   goog.base(this, opt_domHelper);
 };
 goog.inherits(goog.ui.Scroller.Slider, goog.ui.SliderBase);
@@ -563,7 +567,7 @@ goog.ui.Scroller.Slider.prototype.createThumbs = function() {
   var dh = this.getDomHelper();
   var element = this.getElement();
   goog.dom.classes.add(element, this.CssBase_);
-  var thumb = dh.createDom('div', goog.getCssName(this.CssBase_, 'thumb'));
+  var thumb = /** @type {HTMLDivElement} */(dh.createDom('div', goog.getCssName(this.CssBase_, 'thumb')));
   dh.appendChild(element, thumb);
   this.valueThumb = this.extentThumb = thumb;
 };
@@ -571,7 +575,7 @@ goog.ui.Scroller.Slider.prototype.createThumbs = function() {
 
 /**
  * @param {goog.ui.SliderBase.Orientation} orient
- * @return {String} cssName.
+ * @return {string} cssName.
  */
 goog.ui.Scroller.Slider.prototype.getCssClass = function(orient) {
   return orient == goog.ui.SliderBase.Orientation.VERTICAL ?
@@ -581,7 +585,7 @@ goog.ui.Scroller.Slider.prototype.getCssClass = function(orient) {
 
 
 /**
- * @param {Number} val
+ * @param {number} val
  */
 goog.ui.Scroller.Slider.prototype.setValueFromStart = function (val) {
   this.setValue(this.upsidedown_ ? this.getMaximum() - val : val);
@@ -589,7 +593,7 @@ goog.ui.Scroller.Slider.prototype.setValueFromStart = function (val) {
 
 
 /**
- * @return {Number} 0 to 1.
+ * @return {number} 0 to 1.
  */
 goog.ui.Scroller.Slider.prototype.getRate = function () {
   return this.getValueFromStart() / this.getMaximum();
@@ -597,7 +601,7 @@ goog.ui.Scroller.Slider.prototype.getRate = function () {
 
 
 /**
- * @return {Number}
+ * @return {number}
  */
 goog.ui.Scroller.Slider.prototype.getValueFromStart = function () {
   return this.upsidedown_ ? this.getMaximum() - this.getValue() : this.getValue();

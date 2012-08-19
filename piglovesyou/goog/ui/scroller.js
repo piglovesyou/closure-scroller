@@ -291,6 +291,7 @@ goog.ui.Scroller.prototype.isOrientEnabled = function (orient) {
 
 /**
  * @protected
+ * @return {number}
  */
 goog.ui.Scroller.prototype.getScrollHeight = function () {
   return this.containerElm_.scrollHeight;

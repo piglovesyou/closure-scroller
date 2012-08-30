@@ -446,6 +446,7 @@ goog.ui.Scroller.prototype.adjustScrollTop = function (orient) {
 
 /**
  * @param {goog.ui.Scroller.ORIENTATION} orient
+ * @protected
  */
 goog.ui.Scroller.prototype.adjustValueByScroll_ = function (orient) {
   var currScroll, scrollableRange, slider;

@@ -366,7 +366,15 @@ goog.ui.Scroller.prototype.handleMouseWheel_ = function (e) {
   // If scroller only supports HORIZONTAL, then deltaY gets effect to hslider_.
   var slider = this.supportVertical() && e.deltaY ? this.vslider_ : this.hslider_;
   if (slider) {
-    slider.moveThumbs(slider.getUnitIncrement() * -goog.ui.Scroller.calcDetail_(slider, e.detail, this.maxDelta_));
+    var isPositive = e.detail > 0;
+    var val = slider.getValueFromStart();
+    if ((!isPositive && val == slider.getMinimum()) ||
+        (isPositive  && val == slider.getMaximum())) {
+      return;
+    }
+    slider.moveThumbs(slider.getUnitIncrement() *
+        -goog.ui.Scroller.calcNiceDetail_(slider, e.detail, isPositive, this.maxDelta_));
+    e.preventDefault();
   }
 };
 
@@ -377,11 +385,11 @@ goog.ui.Scroller.prototype.handleMouseWheel_ = function (e) {
  * @param {number} max
  * @return {number}
  */
-goog.ui.Scroller.calcDetail_ = function (slider, detail, max) {
+goog.ui.Scroller.calcNiceDetail_ = function (slider, detail, isPositive, max) {
   // TODO: Check all browser.
   if (goog.userAgent.WEBKIT && goog.userAgent.MAC) {
     detail = detail / 40;
-    detail = detail > 0 ? Math.ceil(detail) : Math.floor(detail);
+    detail = isPositive ? Math.ceil(detail) : Math.floor(detail);
   }
   if (slider.getOrientation() === goog.ui.SliderBase.Orientation.HORIZONTAL) detail = -detail;
   return goog.math.clamp(detail, -max, max);

@@ -433,7 +433,7 @@ goog.ui.Scroller.prototype.adjustUnitIncrement_ = function (orient) {
     slider = this.hslider_;
   }
   var valueRange = this.scrollDistance_ / scrollableRange * slider.getMaximum(); 
-  slider.setUnitIncrement(valueRange);
+  slider.setUnitIncrement(Math.max(valueRange, 1));
 };
 
 

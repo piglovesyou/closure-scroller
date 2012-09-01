@@ -66,6 +66,12 @@ goog.ui.Scroller.prototype.minThumbLength_ = 15;
 
 
 /**
+ * @type {number}
+ */
+goog.ui.Scroller.prototype.maxDelta_ = 10;
+
+
+/**
  * @type {?goog.ui.Scroller.Slider}
  */
 goog.ui.Scroller.prototype.vslider_;
@@ -359,11 +365,26 @@ goog.ui.Scroller.prototype.setMouseWheelEnable_ = function (enable) {
 goog.ui.Scroller.prototype.handleMouseWheel_ = function (e) {
   // If scroller only supports HORIZONTAL, then deltaY gets effect to hslider_.
   var slider = this.supportVertical() && e.deltaY ? this.vslider_ : this.hslider_;
-  if (slider && !goog.dom.contains(slider.getElement(), e.target)) {
-    // XXX: Access to private method
-    if (slider.getOrientation() === goog.ui.SliderBase.Orientation.HORIZONTAL) e.detail = -e.detail;
-    goog.ui.SliderBase.prototype.handleMouseWheel_.call(slider, e);
+  if (slider) {
+    slider.moveThumbs(slider.getUnitIncrement() * -goog.ui.Scroller.calcDetail_(slider, e.detail, this.maxDelta_));
   }
+};
+
+
+/**
+ * @param {goog.ui.Scroller.Slider} slider
+ * @param {number} detail
+ * @param {number} max
+ * @return {number}
+ */
+goog.ui.Scroller.calcDetail_ = function (slider, detail, max) {
+  // TODO: Check all browser.
+  if (goog.userAgent.WEBKIT && goog.userAgent.MAC) {
+    detail = detail / 40;
+    detail = detail > 0 ? Math.ceil(detail) : Math.floor(detail);
+  }
+  if (slider.getOrientation() === goog.ui.SliderBase.Orientation.HORIZONTAL) detail = -detail;
+  return goog.math.clamp(detail, -max, max);
 };
 
 
@@ -607,4 +628,13 @@ goog.ui.Scroller.Slider.prototype.getRate = function () {
  */
 goog.ui.Scroller.Slider.prototype.getValueFromStart = function () {
   return this.upsidedown_ ? this.getMaximum() - this.getValue() : this.getValue();
+};
+
+
+/**
+ * We don't use mouseWheeel for a slider.
+ * @inheritDoc
+ */
+goog.ui.Scroller.Slider.prototype.isHandleMouseWheel = function () {
+  return false;
 };

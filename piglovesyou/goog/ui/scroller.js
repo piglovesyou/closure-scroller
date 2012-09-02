@@ -144,7 +144,7 @@ goog.ui.Scroller.prototype.hlastValue_ = 0;
 
 
 /**
- * @param {number}
+ * @param {number} min
  */
 goog.ui.Scroller.prototype.setMinThumbLength = function (min) {
   this.minThumbLength_ = min;

@@ -144,6 +144,14 @@ goog.ui.Scroller.prototype.hlastValue_ = 0;
 
 
 /**
+ * @param {number}
+ */
+goog.ui.Scroller.prototype.setMinThumbLength = function (min) {
+  this.minThumbLength_ = min;
+};
+
+
+/**
  * @return {boolean}
  */
 goog.ui.Scroller.prototype.supportVertical = function () {

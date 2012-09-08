@@ -50,36 +50,64 @@
 
   <script>
 
+  var sandBox;
   var scroller;
+  var scrollerElm;
 
-  function setUp () {
-    var sandBox = goog.dom.getElement('sandbox');
-    clock = new goog.testing.MockClock(true);
-    var scrollerElm = goog.dom.createDom('div', {
+  // Utils
+  function _appendDomToDecorate () {
+    sandBox = goog.dom.getElement('sandbox');
+    scrollerElm = goog.dom.createDom('div', {
       id: 'my-scroller',
       className: 'goog-scroller'
     }, goog.dom.createDom('div', 'goog-scroller-container'));
     sandBox.appendChild(scrollerElm);
-    scroller = new goog.ui.Scroller();
-    scroller.decorate(scrollerElm);
   }
-
-  function tearDown () {
-    goog.events.removeAll();
-    scroller.dispose();
-    clock.dispose();
-    goog.dom.getElement('sandbox').innerHTML = '';
-  }
-
-  function appendItems () {
+  function _appendItems () {
     goog.iter.forEach(goog.iter.range(20), function (e) {
       goog.dom.append(scroller.getContentElement(),
           goog.dom.createDom('div', 'item', 'yeah...'));
     });
     scroller.update();
   }
+  function _decorate () {
+    _appendDomToDecorate()
+    scroller = new goog.ui.Scroller();
+    scroller.decorate(scrollerElm);
+  }
 
+
+
+  // Initialization and clearing
+  function setUp () {
+    clock = new goog.testing.MockClock(true);
+  }
+  function tearDown () {
+    goog.events.removeAll();
+    scroller.dispose();
+    scroller = null;
+    clock.dispose();
+    clock = null;
+    goog.dom.removeChildren(sandBox);
+  }
+
+
+
+  // Tests to run
   function testDecorate () {
+    _decorate();
+    assertTrue(scroller.isInDocument());
+    assertNotNullNorUndefined(scroller.getContentElement());
+
+    var slider = scroller.getSlider();
+    assertEquals(slider.getValueThumb(), slider.getExtentThumb());
+  }
+
+  function testRender () {
+    console.log(sandBox);
+    scroller = new goog.ui.Scroller();
+    scroller.render(sandBox);
+
     assertTrue(scroller.isInDocument());
     assertNotNullNorUndefined(scroller.getContentElement());
 
@@ -88,10 +116,11 @@
   }
 
   function testDisabledWhenNotScrollable () {
+    _decorate();
     assertFalse(scroller.isEnabled());
     assertFalse(goog.style.isElementShown(scroller.getSlider().getElement()));
 
-    appendItems();
+    _appendItems();
     scroller.getContentElement().innerHTML = '';
     scroller.update();
     assertFalse(scroller.isEnabled());
@@ -99,13 +128,15 @@
   }
 
   function testEnabledWhenScrollable () {
-    appendItems();
+    _decorate();
+    _appendItems();
     assertTrue(scroller.isEnabled());
     assertTrue(goog.style.isElementShown(scroller.getSlider().getElement()));
   }
 
   function testScroll () {
-    appendItems();
+    _decorate();
+    _appendItems();
 
     assertEquals(0, scroller.getSlider().getValueFromStart());
     assertEquals(0, scroller.getContentElement().scrollTop);
@@ -117,7 +148,8 @@
   }
 
   function testScrollByKeydown () {
-    appendItems();
+    _decorate();
+    _appendItems();
     goog.testing.events.fireClickSequence(scroller.getElement());
     assertEquals(document.activeElement, scroller.getElement());
 

@@ -216,9 +216,7 @@ goog.ui.Scroller.prototype.createSlider_ = function (orient) {
  */
 goog.ui.Scroller.prototype.decorateInternal = function(element) {
   goog.base(this, 'decorateInternal', element);
-  if (this.supportVertical())   this.vslider_.render(this.getElement());
-  if (this.supportHorizontal()) this.hslider_.render(this.getElement());
-  this.update_();
+  this.renderSliders_();
 };
 
 
@@ -235,6 +233,21 @@ goog.ui.Scroller.prototype.canDecorate = function(element) {
     }
   }
   return false;
+};
+
+
+goog.ui.Scroller.prototype.createDom = function() {
+  var dh = this.getDomHelper();
+  var element = dh.createDom('div', this.CssBase_,
+      this.containerElm_ = dh.createDom('div', goog.getCssName(this.CssBase_, 'container')));
+  this.setElementInternal(element);
+  this.renderSliders_();
+};
+
+
+goog.ui.Scroller.prototype.renderSliders_ = function () {
+  if (this.supportVertical())   this.vslider_.render(this.getElement());
+  if (this.supportHorizontal()) this.hslider_.render(this.getElement());
 };
 
 
@@ -511,6 +524,8 @@ goog.ui.Scroller.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
   if (this.supportVertical())   this.getHandler().listen(this.vslider_, goog.ui.Component.EventType.CHANGE, this.handleChange_);
   if (this.supportHorizontal()) this.getHandler().listen(this.hslider_, goog.ui.Component.EventType.CHANGE, this.handleChange_);
+
+  this.update_();
   this.setZero();
   this.containerElm_.scrollTop = 0;
 };

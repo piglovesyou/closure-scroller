@@ -246,8 +246,14 @@ goog.ui.Scroller.prototype.createDom = function() {
 
 
 goog.ui.Scroller.prototype.renderSliders_ = function () {
-  if (this.supportVertical())   this.vslider_.render(this.getElement());
-  if (this.supportHorizontal()) this.hslider_.render(this.getElement());
+  if (this.supportVertical()) {
+    this.vslider_.render(this.getElement());
+    this.vslider_.setValueFromStart(0);
+  }
+  if (this.supportHorizontal()) {
+    this.hslider_.render(this.getElement());
+    this.hslider_.setValueFromStart(0);
+  }
 };
 
 
@@ -526,8 +532,6 @@ goog.ui.Scroller.prototype.enterDocument = function() {
   if (this.supportHorizontal()) this.getHandler().listen(this.hslider_, goog.ui.Component.EventType.CHANGE, this.handleChange_);
 
   this.update_();
-  this.setZero();
-  this.containerElm_.scrollTop = 0;
 };
 
 

@@ -427,19 +427,21 @@ goog.ui.Scroller.calcNiceDetail_ = function (slider, detail, isPositive, max) {
  * @param {goog.ui.Scroller.ORIENTATION} orient
  */
 goog.ui.Scroller.prototype.adjustThumbSize_ = function (orient, isOppositEnable) {
-  var len, rate, setSize, slider;
+  var len, rate, setSize, slider, oppositBarWidth;
   if (orient & goog.ui.Scroller.ORIENTATION.VERTICAL) {
     len = this.height_;
     rate = len / this.scrollHeight_;
     setSize = goog.style.setHeight;
     slider = this.vslider_;
+    if (isOppositEnable) oppositBarWidth = this.hslider_.getElement().offsetHeight;
   } else {
     len = this.width_;
     rate = len / this.scrollWidth_;
     setSize = goog.style.setWidth;
     slider = this.hslider_;
+    if (isOppositEnable) oppositBarWidth = this.vslider_.getElement().offsetWidth;
   }
-  setSize(slider.getElement(), isOppositEnable ? len - 10 : '100%');
+  setSize(slider.getElement(), goog.isDefAndNotNull(oppositBarWidth) ? len - oppositBarWidth : '100%');
   var thumbSize = Math.max(rate * len, this.minThumbLength_);
   setSize(slider.getValueThumb(), thumbSize);
 };

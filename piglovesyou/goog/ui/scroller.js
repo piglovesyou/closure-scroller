@@ -56,7 +56,7 @@ goog.ui.Scroller.ORIENTATION = {
 /**
  * @type {number}
  */
-goog.ui.Scroller.prototype.scrollDistance_ = 15;
+goog.ui.Scroller.prototype.scrollDistance_ = 4;
 
 
 /**
@@ -68,7 +68,7 @@ goog.ui.Scroller.prototype.minThumbLength_ = 15;
 /**
  * @type {number}
  */
-goog.ui.Scroller.prototype.maxDelta_ = 10;
+goog.ui.Scroller.prototype.maxDelta_ = 40;
 
 
 /**
@@ -415,7 +415,7 @@ goog.ui.Scroller.prototype.handleMouseWheel_ = function (e) {
 goog.ui.Scroller.calcNiceDetail_ = function (slider, detail, isPositive, max) {
   // TODO: Check all browser.
   if (goog.userAgent.WEBKIT && goog.userAgent.MAC) {
-    detail = detail / 40;
+    detail = detail / 20;
     detail = isPositive ? Math.ceil(detail) : Math.floor(detail);
   }
   if (slider.getOrientation() === goog.ui.SliderBase.Orientation.HORIZONTAL) detail = -detail;

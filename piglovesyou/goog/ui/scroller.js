@@ -486,7 +486,6 @@ goog.ui.Scroller.prototype.updateMaximumIfNeeded_ = function (slider, scrollable
   var m = slider.getMaximum();
   while (scrollableRange / m > 1) m *= 10;
   if (m > slider.getMaximum()) {
-    console.log('yeah', m);
     this.canChangeScroll_ = false;
     var rate = slider.getRate();
     slider.setMaximum(m);

@@ -469,8 +469,30 @@ goog.ui.Scroller.prototype.adjustUnitIncrement_ = function (orient) {
     scrollableRange = this.hscrollableRange_;
     slider = this.hslider_;
   }
+  this.updateMaximumIfNeeded_(slider, scrollableRange);
   var valueRange = this.scrollDistance_ / scrollableRange * slider.getMaximum(); 
   slider.setUnitIncrement(Math.max(valueRange, 1));
+};
+
+
+/**
+ * If scrollableRange_ is very large, we should set slider maximum more
+ *   in order to ensure scrollDistance_.
+ * TODO: We can set optimum maximum everytime on update.
+ * @param {goog.ui.Scroller.Slider} slider
+ * @param {number} scrollableRange
+ */
+goog.ui.Scroller.prototype.updateMaximumIfNeeded_ = function (slider, scrollableRange) {
+  var m = slider.getMaximum();
+  while (scrollableRange / m > 1) m *= 10;
+  if (m > slider.getMaximum()) {
+    console.log('yeah', m);
+    this.canChangeScroll_ = false;
+    var rate = slider.getRate();
+    slider.setMaximum(m);
+    slider.setValueFromStart(m * rate);
+    this.canChangeScroll_ = true;
+  }
 };
 
 
@@ -517,7 +539,7 @@ goog.ui.Scroller.prototype.adjustValueByScroll_ = function (orient) {
     scrollableRange = this.hscrollableRange_
     slider = this.hslider_;
   }
-  var currRate = currScroll / scrollableRange;
+  var currRate = scrollableRange > 0 ? currScroll / scrollableRange : 0;
   var value = currRate * slider.getMaximum();
   this.canChangeScroll_ = false;
   slider.setValueFromStart(value);

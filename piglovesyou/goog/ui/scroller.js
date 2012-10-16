@@ -631,6 +631,22 @@ goog.ui.Scroller.prototype.handleKeyEventInternal = function (e) {
 };
 
 
+/** @inheritDoc */
+goog.ui.Scroller.prototype.disposeInternal = function () {
+  if (this.vslider_) {
+    this.vslider_.dispose();
+    this.vslider_ = null;
+  }
+  if (this.hslider_) {
+    this.hslider_.dispose();
+    this.hslider_ = null;
+  }
+  if (this.mouseWheelHandler_) {
+    this.mouseWheelHandler_.dispose();
+    this.mouseWheelHandler_ = null;
+  }
+  goog.base(this, 'disposeInternal');
+};
 
 
 

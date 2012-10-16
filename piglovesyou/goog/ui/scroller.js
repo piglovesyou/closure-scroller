@@ -613,16 +613,13 @@ goog.ui.Scroller.prototype.handleKeyEventInternal = function (e) {
     }
   }
   if (e.keyCode == goog.events.KeyCodes.SPACE) {
-    console.log(slider.getBlockIncrement());
-    slider.moveThumbs(e.shiftKey ?
+    slider.moveThumbsFromStart(e.shiftKey ?
         slider.getBlockIncrement() : -slider.getBlockIncrement());
     return true;
   }
-  console.log(slider.getValueFromStart());
   if (slider) {
     // XXX: Access to private method.
     slider.handleKeyDown_(e);
-    console.log(slider.getValueFromStart());
     // SliderBase's api sucks.. return always true.
     return e.getBrowserEvent().defaultPrevented;
   } else {
@@ -714,6 +711,14 @@ goog.ui.Scroller.Slider.prototype.setValueFromStart = function (val) {
  */
 goog.ui.Scroller.Slider.prototype.getRate = function () {
   return this.getValueFromStart() / this.getMaximum();
+};
+
+
+/**
+ * @param {number} delta
+ */
+goog.ui.Scroller.Slider.prototype.moveThumbsFromStart = function (delta) {
+  this.moveThumbs(this.upsidedown_ ? delta : -delta);
 };
 
 

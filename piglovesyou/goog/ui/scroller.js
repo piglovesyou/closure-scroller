@@ -206,7 +206,19 @@ goog.ui.Scroller.prototype.createSlider_ = function (orient) {
   slider.setOrientation(orient);
   slider.setMoveToPointEnabled(true);
   slider.setMaximum(100000);
+  slider.setBlockIncrementFn(goog.bind(this.getBlockIncrement_, this));
   return slider;
+};
+
+
+/**
+ * @param {goog.ui.SliderBase.Orientation} orient
+ * @param {number} unitInc
+ * @return {number}
+ */
+goog.ui.Scroller.prototype.getBlockIncrement_ = function(orient, unitInc) {
+  return (orient == goog.ui.SliderBase.Orientation.VERTICAL ?
+    this.height_ : this.width_) / this.scrollDistance_ * unitInc;
 };
 
 
@@ -600,9 +612,17 @@ goog.ui.Scroller.prototype.handleKeyEventInternal = function (e) {
       slider = this.vslider_;
     }
   }
+  if (e.keyCode == goog.events.KeyCodes.SPACE) {
+    console.log(slider.getBlockIncrement());
+    slider.moveThumbs(e.shiftKey ?
+        slider.getBlockIncrement() : -slider.getBlockIncrement());
+    return true;
+  }
+  console.log(slider.getValueFromStart());
   if (slider) {
     // XXX: Access to private method.
     slider.handleKeyDown_(e);
+    console.log(slider.getValueFromStart());
     // SliderBase's api sucks.. return always true.
     return e.getBrowserEvent().defaultPrevented;
   } else {
@@ -695,4 +715,24 @@ goog.ui.Scroller.Slider.prototype.getValueFromStart = function () {
  */
 goog.ui.Scroller.Slider.prototype.isHandleMouseWheel = function () {
   return false;
+};
+
+
+/**
+ * @type {Function}
+ */
+goog.ui.Scroller.Slider.prototype.blockIncrementFn_ = goog.nullFunction;
+
+
+/** 
+ * @param {Function}
+ */
+goog.ui.Scroller.Slider.prototype.setBlockIncrementFn = function (fn) {
+  this.blockIncrementFn_ = fn;
+};
+
+
+/** @inheritDoc */
+goog.ui.Scroller.Slider.prototype.getBlockIncrement = function () {
+  return this.blockIncrementFn_(this.getOrientation(), this.getUnitIncrement());
 };

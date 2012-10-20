@@ -563,8 +563,6 @@ goog.ui.Scroller.prototype.adjustValueByScroll_ = function (orient) {
  */
 goog.ui.Scroller.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
-  // Slider doesn't need focused state. Only scroller does.
-  goog.dom.setFocusableTabIndex(this.getElement(), false);
 
   if (this.supportVertical())   this.getHandler().listen(this.vslider_, goog.ui.Component.EventType.CHANGE, this.handleChange_);
   if (this.supportHorizontal()) this.getHandler().listen(this.hslider_, goog.ui.Component.EventType.CHANGE, this.handleChange_);
@@ -677,6 +675,13 @@ goog.ui.Scroller.Slider.prototype.setOrientation = function (orient) {
    * @type {boolean}
    */
   this.upsidedown_ = orient === goog.ui.SliderBase.Orientation.VERTICAL;
+};
+
+
+goog.ui.Scroller.Slider.prototype.enterDocument = function() {
+  goog.base(this, 'enterDocument');
+  // Slider doesn't need focused state. Only scroller does.
+  goog.dom.setFocusableTabIndex(this.getElement(), false);
 };
 
 

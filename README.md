@@ -17,7 +17,7 @@ $ make setup
 ```
 Then, access ```./piglovesyou/goog/ui/scroller_test.html``` by a browser.
 
-Tested revision of Closure Library is 2113.
+Tested revision of Closure Library is 2405.
 
 #### 2. Code-Checking by Closure Compiler
 Run 

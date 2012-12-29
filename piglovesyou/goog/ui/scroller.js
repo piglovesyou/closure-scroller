@@ -530,7 +530,7 @@ goog.ui.Scroller.prototype.adjustUnitIncrement_ = function(orient) {
     scrollableRange = this.hscrollableRange_;
     slider = this.hslider_;
   }
-  goog.asserts.assert(scrollableRange && slider);
+  goog.asserts.assert(goog.isNumber(scrollableRange) && slider);
   this.updateMaximumIfNeeded_(slider, scrollableRange);
   var valueRange = this.scrollDistance_ / scrollableRange * slider.getMaximum();
   slider.setUnitIncrement(Math.max(valueRange, 1));

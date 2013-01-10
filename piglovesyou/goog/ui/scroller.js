@@ -59,7 +59,7 @@ goog.ui.Scroller.ORIENTATION = {
  * @type {number}
  * @private
  */
-goog.ui.Scroller.prototype.scrollDistance_ = goog.userAgent.MAC ?  4 : 15;
+goog.ui.Scroller.prototype.scrollDistance_ = goog.userAgent.MAC ? 4 : 15;
 
 
 /**

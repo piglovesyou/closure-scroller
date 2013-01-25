@@ -11,6 +11,7 @@
 <html>
 <head>
 	<meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 	<title>goog.ui.Scroller</title>
   <link rel="stylesheet" href="../css/scroller.css" />
 
@@ -80,7 +81,7 @@
     }
 
 
-     table {
+    table {
       border-collapse: collapse;
       background: 
     }
@@ -93,7 +94,21 @@
       vertical-align: top;
     }
   </style>
-
+  <!--[if lt IE 8 ]>
+    <style type="text/css">
+      #my-vscroller .goog-scroller-container,
+      #my-hscroller .goog-scroller-container,
+      #my-bscroller .goog-scroller-container {
+        width: 200px;
+        height: 200px;
+      }
+      #my-hscroller .item {height: 200px;}
+      #my-hscroller .item,
+      #my-bscroller .item {
+        display: inline;
+      }
+    </style>
+  <![endif]-->
 </head>
 <body>
 

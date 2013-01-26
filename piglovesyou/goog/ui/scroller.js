@@ -85,7 +85,7 @@ goog.ui.Scroller.prototype.maxDelta_ = 40;
 
 /**
  * A place holder of a vertical scroll bar.
- * @type {?goog.ui.Scroller.Slider}
+ * @type {?goog.ui.Scroller.Slider_}
  * @private
  */
 goog.ui.Scroller.prototype.vslider_;
@@ -93,7 +93,7 @@ goog.ui.Scroller.prototype.vslider_;
 
 /**
  * A place holder of a horizontal scroll bar.
- * @type {?goog.ui.Scroller.Slider}
+ * @type {?goog.ui.Scroller.Slider_}
  * @private
  */
 goog.ui.Scroller.prototype.hslider_;
@@ -240,15 +240,15 @@ goog.ui.Scroller.prototype.setupSlider_ = function() {
 
 /**
  * @param {goog.ui.SliderBase.Orientation} orient .
- * @return {goog.ui.Scroller.Slider} .
+ * @return {goog.ui.Scroller.Slider_} .
  * @private
  */
 goog.ui.Scroller.prototype.createSlider_ = function(orient) {
-  var slider = new goog.ui.Scroller.Slider(this.getDomHelper());
+  var slider = new goog.ui.Scroller.Slider_(
+      goog.bind(this.getBlockIncrement_, this), this.getDomHelper());
   slider.setOrientation(orient);
   slider.setMoveToPointEnabled(true);
   slider.setMaximum(100000);
-  slider.setBlockIncrementFn(goog.bind(this.getBlockIncrement_, this));
   return slider;
 };
 
@@ -476,7 +476,7 @@ goog.ui.Scroller.prototype.handleMouseWheel_ = function(e) {
 
 
 /**
- * @param {goog.ui.Scroller.Slider} slider .
+ * @param {goog.ui.Scroller.Slider_} slider .
  * @param {number} detail .
  * @param {boolean} isPositive .
  * @param {number} max .
@@ -563,7 +563,7 @@ goog.ui.Scroller.prototype.adjustUnitIncrement_ = function(orient) {
  * If scrollableRange_ is very large, we should set slider maximum larger
  *   in order to emulate more precise scrollDistance_.
  * TODO: We can set optimum maximum everytime on update.
- * @param {goog.ui.Scroller.Slider} slider .
+ * @param {goog.ui.Scroller.Slider_} slider .
  * @param {number} scrollableRange .
  * @private
  */
@@ -591,7 +591,7 @@ goog.ui.Scroller.prototype.setZero = function() {
 
 /**
  * @param {?goog.ui.Scroller.ORIENTATION=} opt_orient .
- * @return {goog.ui.Scroller.Slider} .
+ * @return {goog.ui.Scroller.Slider_} .
  */
 goog.ui.Scroller.prototype.getSlider = function(opt_orient) {
   if (opt_orient & goog.ui.Scroller.ORIENTATION.HORIZONTAL) {
@@ -667,7 +667,7 @@ goog.ui.Scroller.prototype.enterDocument = function() {
 goog.ui.Scroller.prototype.handleChange_ = function(e) {
   if (!this.canChangeScroll_) return;
   var slider = e.target;
-  goog.asserts.assertInstanceof(slider, goog.ui.Scroller.Slider);
+  goog.asserts.assertInstanceof(slider, goog.ui.Scroller.Slider_);
 
   var orient =
     slider.getOrientation() === goog.ui.SliderBase.Orientation.VERTICAL ?
@@ -718,7 +718,7 @@ goog.ui.Scroller.prototype.handleKeyEventInternal = function(e) {
   if (slider) {
     // XXX: Access to private method.
     slider.handleKeyDown_(e);
-    // SliderBase's api sucks.. return always true.
+    // SliderBase's api sucks.. It returns always true.
     return e.getBrowserEvent().defaultPrevented;
   } else {
     return false;
@@ -749,20 +749,35 @@ goog.ui.Scroller.prototype.disposeInternal = function() {
 /**
  * Slider used as a scroll bar of the goog.ui.Scroller.
  * @constructor
+ * @param {Function} blockIncrementFn Because the slider does not
+ *    know how much it should move (block increment), slider has to
+ *    use scroller's getter function.
  * @param {goog.dom.DomHelper=} opt_domHelper .
  * @extends {goog.ui.SliderBase}
+ * @private
  */
-goog.ui.Scroller.Slider = function(opt_domHelper) {
+goog.ui.Scroller.Slider_ = function(blockIncrementFn, opt_domHelper) {
   goog.base(this, opt_domHelper);
+
+  /**
+   * @type {Function}
+   * @private
+   */
+  this.blockIncrementFn_ = blockIncrementFn;
+
+  /**
+   * We don't use mouseWheeel for a slider.
+   */
+  this.setHandleMouseWheel(false);
 };
-goog.inherits(goog.ui.Scroller.Slider, goog.ui.SliderBase);
+goog.inherits(goog.ui.Scroller.Slider_, goog.ui.SliderBase);
 
 
 /**
  * @private
  * @type {string}
  */
-goog.ui.Scroller.Slider.prototype.CssBase_ = 'goog-scroller-bar';
+goog.ui.Scroller.Slider_.prototype.CssBase_ = 'goog-scroller-bar';
 
 
 /**
@@ -770,13 +785,13 @@ goog.ui.Scroller.Slider.prototype.CssBase_ = 'goog-scroller-bar';
  * @return {boolean} .
  * @private
  */
-goog.ui.Scroller.Slider.prototype.shouldUpsideDown_ = function() {
+goog.ui.Scroller.Slider_.prototype.shouldUpsideDown_ = function() {
   return this.getOrientation() === goog.ui.SliderBase.Orientation.VERTICAL;
 };
 
 
 /** @inheritDoc */
-goog.ui.Scroller.Slider.prototype.enterDocument = function() {
+goog.ui.Scroller.Slider_.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
   // Slider doesn't need focused state. Only scroller does.
   goog.dom.setFocusableTabIndex(this.getElement(), false);
@@ -784,7 +799,7 @@ goog.ui.Scroller.Slider.prototype.enterDocument = function() {
 
 
 /** @inheritDoc */
-goog.ui.Scroller.Slider.prototype.createThumbs = function() {
+goog.ui.Scroller.Slider_.prototype.createThumbs = function() {
   var dh = this.getDomHelper();
   var element = this.getElement();
   goog.dom.classes.add(element, this.CssBase_);
@@ -799,7 +814,7 @@ goog.ui.Scroller.Slider.prototype.createThumbs = function() {
  * @param {goog.ui.SliderBase.Orientation} orient .
  * @return {string} cssName.
  */
-goog.ui.Scroller.Slider.prototype.getCssClass = function(orient) {
+goog.ui.Scroller.Slider_.prototype.getCssClass = function(orient) {
   return orient == goog.ui.SliderBase.Orientation.VERTICAL ?
       goog.getCssName(this.CssBase_, 'vertical') :
       goog.getCssName(this.CssBase_, 'horizontal');
@@ -809,7 +824,7 @@ goog.ui.Scroller.Slider.prototype.getCssClass = function(orient) {
 /**
  * @param {number} val .
  */
-goog.ui.Scroller.Slider.prototype.setValueFromStart = function(val) {
+goog.ui.Scroller.Slider_.prototype.setValueFromStart = function(val) {
   this.setValue(this.shouldUpsideDown_() ? this.getMaximum() - val : val);
 };
 
@@ -817,7 +832,7 @@ goog.ui.Scroller.Slider.prototype.setValueFromStart = function(val) {
 /**
  * @return {number} Rate of current value. 0 to 1.
  */
-goog.ui.Scroller.Slider.prototype.getRate = function() {
+goog.ui.Scroller.Slider_.prototype.getRate = function() {
   return this.getValueFromStart() / this.getMaximum();
 };
 
@@ -825,7 +840,7 @@ goog.ui.Scroller.Slider.prototype.getRate = function() {
 /**
  * @param {number} delta .
  */
-goog.ui.Scroller.Slider.prototype.moveThumbsFromStart = function(delta) {
+goog.ui.Scroller.Slider_.prototype.moveThumbsFromStart = function(delta) {
   this.moveThumbs(this.shouldUpsideDown_() ? delta : -delta);
 };
 
@@ -833,42 +848,15 @@ goog.ui.Scroller.Slider.prototype.moveThumbsFromStart = function(delta) {
 /**
  * @return {number} .
  */
-goog.ui.Scroller.Slider.prototype.getValueFromStart = function() {
+goog.ui.Scroller.Slider_.prototype.getValueFromStart = function() {
   return this.shouldUpsideDown_() ?
       this.getMaximum() - this.getValue() : this.getValue();
 };
 
 
 /**
- * We don't use mouseWheeel for a slider.
  * @inheritDoc
  */
-goog.ui.Scroller.Slider.prototype.isHandleMouseWheel = function() {
-  return false;
-};
-
-
-/**
- * TODO: Set function in constructor. 
- * @type {Function}
- * @private
- */
-goog.ui.Scroller.Slider.prototype.blockIncrementFn_ = goog.nullFunction;
-
-
-/**
- * @param {Function} fn .
- */
-goog.ui.Scroller.Slider.prototype.setBlockIncrementFn = function(fn) {
-  this.blockIncrementFn_ = fn;
-};
-
-
-/**
- * Because the slider does not know how much it should move (block increment),
- * slider has to use scroller's getter function. 
- * @inheritDoc
- */
-goog.ui.Scroller.Slider.prototype.getBlockIncrement = function() {
+goog.ui.Scroller.Slider_.prototype.getBlockIncrement = function() {
   return this.blockIncrementFn_(this.getOrientation(), this.getUnitIncrement());
 };

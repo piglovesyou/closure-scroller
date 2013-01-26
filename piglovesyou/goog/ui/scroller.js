@@ -8,9 +8,21 @@
  */
 
 goog.provide('goog.ui.Scroller');
+goog.provide('goog.ui.Scroller.EventType');
 
+goog.require('goog.asserts');
+goog.require('goog.dom');
+goog.require('goog.dom.classes');
+goog.require('goog.events.KeyCodes');
+goog.require('goog.events.MouseWheelHandler');
+goog.require('goog.events.MouseWheelHandler.EventType');
+goog.require('goog.math');
+goog.require('goog.style');
+goog.require('goog.ui.Component.EventType');
 goog.require('goog.ui.Control');
-goog.require('goog.ui.Slider');
+goog.require('goog.ui.SliderBase');
+goog.require('goog.ui.SliderBase.Orientation');
+goog.require('goog.userAgent');
 
 
 /**

@@ -484,7 +484,6 @@ goog.ui.Scroller.prototype.handleMouseWheel_ = function(e) {
  * @private
  */
 goog.ui.Scroller.calcNiceDetail_ = function(slider, detail, isPositive, max) {
-  // TODO: Check all browser.
   if (goog.userAgent.WEBKIT && goog.userAgent.MAC) {
     detail = detail / 20;
     detail = isPositive ? Math.ceil(detail) : Math.floor(detail);
@@ -561,8 +560,8 @@ goog.ui.Scroller.prototype.adjustUnitIncrement_ = function(orient) {
 
 
 /**
- * If scrollableRange_ is very large, we should set slider maximum more
- *   in order to ensure scrollDistance_.
+ * If scrollableRange_ is very large, we should set slider maximum larger
+ *   in order to emulate more precise scrollDistance_.
  * TODO: We can set optimum maximum everytime on update.
  * @param {goog.ui.Scroller.Slider} slider .
  * @param {number} scrollableRange .
@@ -666,26 +665,27 @@ goog.ui.Scroller.prototype.enterDocument = function() {
  * @private
  */
 goog.ui.Scroller.prototype.handleChange_ = function(e) {
+  if (!this.canChangeScroll_) return;
   var slider = e.target;
-  // TODO: return if canChangeScroll_ is false.
-  if (slider && this.canChangeScroll_) {
-    var orient =
-      slider.getOrientation() === goog.ui.SliderBase.Orientation.VERTICAL ?
-        goog.ui.Scroller.ORIENTATION.VERTICAL :
-        goog.ui.Scroller.ORIENTATION.HORIZONTAL;
-    this.adjustScrollTop(orient);
+  goog.asserts.assertInstanceof(slider, goog.ui.Scroller.Slider);
 
-    var lastValue = orient & goog.ui.Scroller.ORIENTATION.VERTICAL ?
-      this.vlastValue_ : this.hlastValue_;
-    var currValue = slider.getValueFromStart();
-    this.dispatchEvent({
-      type: goog.ui.Scroller.EventType.SCROLL,
-      delta: lastValue < currValue ? 1 : -1
-    });
-    if (orient & goog.ui.Scroller.ORIENTATION.VERTICAL) {
-      this.vlastValue_ = currValue;
-    }
-    else this.hlastValue_ = currValue;
+  var orient =
+    slider.getOrientation() === goog.ui.SliderBase.Orientation.VERTICAL ?
+      goog.ui.Scroller.ORIENTATION.VERTICAL :
+      goog.ui.Scroller.ORIENTATION.HORIZONTAL;
+  this.adjustScrollTop(orient);
+
+  var lastValue = orient & goog.ui.Scroller.ORIENTATION.VERTICAL ?
+    this.vlastValue_ : this.hlastValue_;
+  var currValue = slider.getValueFromStart();
+  this.dispatchEvent({
+    type: goog.ui.Scroller.EventType.SCROLL,
+    delta: lastValue < currValue ? 1 : -1
+  });
+  if (orient & goog.ui.Scroller.ORIENTATION.VERTICAL) {
+    this.vlastValue_ = currValue;
+  } else {
+    this.hlastValue_ = currValue;
   }
 };
 

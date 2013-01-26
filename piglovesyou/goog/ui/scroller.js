@@ -766,23 +766,12 @@ goog.ui.Scroller.Slider.prototype.CssBase_ = 'goog-scroller-bar';
 
 
 /**
- * TODO: Delete this. we don't have to cache it.
+ * If vertical, `top' should be zero. If horizontal, `left' should be zero.
+ * @return {boolean} .
  * @private
- * @type {boolean}
  */
-goog.ui.Scroller.Slider.prototype.upsidedown_ = false;
-
-
-/**
- * @override
- */
-goog.ui.Scroller.Slider.prototype.setOrientation = function(orient) {
-  goog.base(this, 'setOrientation', orient);
-
-  /**
-   * @type {boolean}
-   */
-  this.upsidedown_ = orient === goog.ui.SliderBase.Orientation.VERTICAL;
+goog.ui.Scroller.Slider.prototype.shouldUpsideDown_ = function() {
+  return this.getOrientation() === goog.ui.SliderBase.Orientation.VERTICAL;
 };
 
 
@@ -818,11 +807,10 @@ goog.ui.Scroller.Slider.prototype.getCssClass = function(orient) {
 
 
 /**
- * If vertical, `top' should be zero. If horizontal, `left' should be zero.
  * @param {number} val .
  */
 goog.ui.Scroller.Slider.prototype.setValueFromStart = function(val) {
-  this.setValue(this.upsidedown_ ? this.getMaximum() - val : val);
+  this.setValue(this.shouldUpsideDown_() ? this.getMaximum() - val : val);
 };
 
 
@@ -838,7 +826,7 @@ goog.ui.Scroller.Slider.prototype.getRate = function() {
  * @param {number} delta .
  */
 goog.ui.Scroller.Slider.prototype.moveThumbsFromStart = function(delta) {
-  this.moveThumbs(this.upsidedown_ ? delta : -delta);
+  this.moveThumbs(this.shouldUpsideDown_() ? delta : -delta);
 };
 
 
@@ -846,7 +834,7 @@ goog.ui.Scroller.Slider.prototype.moveThumbsFromStart = function(delta) {
  * @return {number} .
  */
 goog.ui.Scroller.Slider.prototype.getValueFromStart = function() {
-  return this.upsidedown_ ?
+  return this.shouldUpsideDown_() ?
       this.getMaximum() - this.getValue() : this.getValue();
 };
 

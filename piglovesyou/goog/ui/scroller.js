@@ -14,8 +14,11 @@ goog.require('goog.ui.Slider');
 
 
 /**
+ * Provides natural scrolling UI similar to browser native.
  * @constructor
- * @param {?goog.ui.Scroller.ORIENTATION=} opt_orient .
+ * @param {?goog.ui.Scroller.ORIENTATION=} opt_orient Scrolling
+ *    direction which you can choose VERTICAL, HORIZONTAL, BOTH.
+ *    The default value is VERTICAL.
  * @param {goog.dom.DomHelper=} opt_domHelper .
  * @extends {goog.ui.Control}
  */
@@ -55,7 +58,8 @@ goog.ui.Scroller.ORIENTATION = {
 
 
 /**
- * XXX: Still I am adjusting this number.
+ * Scrolling distance of each MouseWheelEvent / KeyEvent.
+ * Sets smaller in Mac. This works fine for my env but what do you think?
  * @type {number}
  * @private
  */
@@ -63,6 +67,7 @@ goog.ui.Scroller.prototype.scrollDistance_ = goog.userAgent.MAC ? 4 : 15;
 
 
 /**
+ * Minimum size of a thumb in scroll bar. Use setMinThumbLength to change.
  * @type {number}
  * @private
  */
@@ -70,6 +75,8 @@ goog.ui.Scroller.prototype.minThumbLength_ = 15;
 
 
 /**
+ * Because some OS and browser provides large delta by MouseWheelEvent,
+ * this limits it by the fine degree.
  * @type {number}
  * @private
  */
@@ -77,6 +84,7 @@ goog.ui.Scroller.prototype.maxDelta_ = 40;
 
 
 /**
+ * A place holder of a vertical scroll bar.
  * @type {?goog.ui.Scroller.Slider}
  * @private
  */
@@ -84,6 +92,7 @@ goog.ui.Scroller.prototype.vslider_;
 
 
 /**
+ * A place holder of a horizontal scroll bar.
  * @type {?goog.ui.Scroller.Slider}
  * @private
  */
@@ -91,6 +100,7 @@ goog.ui.Scroller.prototype.hslider_;
 
 
 /**
+ * DOM in which child components get.
  * @type {?Element}
  * @private
  */
@@ -98,6 +108,7 @@ goog.ui.Scroller.prototype.containerElm_;
 
 
 /**
+ * Private cache of scroll height of containerElm_.
  * @type {?number}
  * @private
  */
@@ -105,6 +116,7 @@ goog.ui.Scroller.prototype.scrollHeight_;
 
 
 /**
+ * Private cache of vertical scrollable range of containerElm_.
  * @type {?number}
  * @private
  */
@@ -112,6 +124,7 @@ goog.ui.Scroller.prototype.vscrollableRange_;
 
 
 /**
+ * Private cache of horizontal scrollable range of containerElm_.
  * @type {?number}
  * @private
  */
@@ -119,6 +132,7 @@ goog.ui.Scroller.prototype.hscrollableRange_;
 
 
 /**
+ * Private cache of containerElm_ height.
  * @type {?number}
  * @private
  */
@@ -126,6 +140,7 @@ goog.ui.Scroller.prototype.height_;
 
 
 /**
+ * Private cache of containerElm_ width.
  * @type {?number}
  * @private
  */
@@ -140,6 +155,9 @@ goog.ui.Scroller.prototype.CssBase_ = 'goog-scroller';
 
 
 /**
+ * Sometimes we want to change slider's value without extra handling.
+ * This flag is referred in handleChange_ to know whether we should
+ * handle the event or not.
  * @type {boolean}
  * @private
  */
@@ -147,6 +165,7 @@ goog.ui.Scroller.prototype.canChangeScroll_ = true;
 
 
 /**
+ * Private cache of last value of vertical slider.
  * @type {number}
  * @private
  */
@@ -154,6 +173,7 @@ goog.ui.Scroller.prototype.vlastValue_ = 0;
 
 
 /**
+ * Private cache of last value of horizontal slider.
  * @type {number}
  * @private
  */
@@ -169,7 +189,7 @@ goog.ui.Scroller.prototype.setMinThumbLength = function(min) {
 
 
 /**
- * @return {boolean} .
+ * @return {boolean} Whether the scroller supports VERTICAL orientation.
  */
 goog.ui.Scroller.prototype.supportVertical = function() {
   return !!(this.orient_ & goog.ui.Scroller.ORIENTATION.VERTICAL ||
@@ -178,7 +198,7 @@ goog.ui.Scroller.prototype.supportVertical = function() {
 
 
 /**
- * @return {boolean} .
+ * @return {boolean} Whether the scroller supports HORIZONTAL orientation.
  */
 goog.ui.Scroller.prototype.supportHorizontal = function() {
   return !!(this.orient_ & goog.ui.Scroller.ORIENTATION.HORIZONTAL ||
@@ -187,6 +207,8 @@ goog.ui.Scroller.prototype.supportHorizontal = function() {
 
 
 /**
+ * Public interface to update all inner cache of the scroller.
+ * Call this when the content height/width was changed.
  */
 goog.ui.Scroller.prototype.update = function() {
   this.update_();
@@ -620,7 +642,8 @@ goog.ui.Scroller.prototype.adjustValueByScroll_ = function(orient) {
 
 
 /**
- * @override
+ * Prepare all event listening and update at last.
+ * @inheritDoc
  */
 goog.ui.Scroller.prototype.enterDocument = function() {
   goog.base(this, 'enterDocument');
@@ -639,11 +662,12 @@ goog.ui.Scroller.prototype.enterDocument = function() {
 
 
 /**
- * @param {goog.events.Event} e .
+ * @param {goog.events.Event} e Handles both vslider_ and hslider_.
  * @private
  */
 goog.ui.Scroller.prototype.handleChange_ = function(e) {
   var slider = e.target;
+  // TODO: return if canChangeScroll_ is false.
   if (slider && this.canChangeScroll_) {
     var orient =
       slider.getOrientation() === goog.ui.SliderBase.Orientation.VERTICAL ?
@@ -667,7 +691,7 @@ goog.ui.Scroller.prototype.handleChange_ = function(e) {
 
 
 /**
- * @override
+ * @inheritDoc
  * @param {goog.events.KeyEvent} e Key event to handle.
  * @return {boolean} .
  */
@@ -723,6 +747,7 @@ goog.ui.Scroller.prototype.disposeInternal = function() {
 
 
 /**
+ * Slider used as a scroll bar of the goog.ui.Scroller.
  * @constructor
  * @param {goog.dom.DomHelper=} opt_domHelper .
  * @extends {goog.ui.SliderBase}
@@ -741,6 +766,7 @@ goog.ui.Scroller.Slider.prototype.CssBase_ = 'goog-scroller-bar';
 
 
 /**
+ * TODO: Delete this. we don't have to cache it.
  * @private
  * @type {boolean}
  */
@@ -792,6 +818,7 @@ goog.ui.Scroller.Slider.prototype.getCssClass = function(orient) {
 
 
 /**
+ * If vertical, `top' should be zero. If horizontal, `left' should be zero.
  * @param {number} val .
  */
 goog.ui.Scroller.Slider.prototype.setValueFromStart = function(val) {
@@ -800,7 +827,7 @@ goog.ui.Scroller.Slider.prototype.setValueFromStart = function(val) {
 
 
 /**
- * @return {number} 0 to 1.
+ * @return {number} Rate of current value. 0 to 1.
  */
 goog.ui.Scroller.Slider.prototype.getRate = function() {
   return this.getValueFromStart() / this.getMaximum();
@@ -834,6 +861,7 @@ goog.ui.Scroller.Slider.prototype.isHandleMouseWheel = function() {
 
 
 /**
+ * TODO: Set function in constructor. 
  * @type {Function}
  * @private
  */
@@ -848,7 +876,11 @@ goog.ui.Scroller.Slider.prototype.setBlockIncrementFn = function(fn) {
 };
 
 
-/** @inheritDoc */
+/**
+ * Because the slider does not know how much it should move (block increment),
+ * slider has to use scroller's getter function. 
+ * @inheritDoc
+ */
 goog.ui.Scroller.Slider.prototype.getBlockIncrement = function() {
   return this.blockIncrementFn_(this.getOrientation(), this.getUnitIncrement());
 };
